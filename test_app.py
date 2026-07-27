@@ -159,7 +159,18 @@ class FlaskAppTestCase(unittest.TestCase):
             'new_password': 'resetpass789'
         }, follow_redirects=True)
         self.assertIn(b'reset successfully!', response.data)
-        print("[PASS] Step 12b: Admin reset student password directly from user directory")
+        # 13. Bulk JSON Import
+        bulk_json = '''{
+            "questions": [
+                {"title": "Bulk Q1 - Stack Implementation", "description": "Implement stack using array.", "max_marks": 10.0, "category": "Data Structures", "solution_hint": "Use top pointer."},
+                {"title": "Bulk Q2 - Queue Implementation", "description": "Implement queue using linked list.", "max_marks": 15.0, "category": "Data Structures", "solution_hint": "Use head and tail pointers."}
+            ]
+        }'''
+        response = self.client.post('/admin/questions/bulk_import', data={
+            'json_text': bulk_json
+        }, follow_redirects=True)
+        self.assertIn(b'Successfully bulk-imported 2 questions!', response.data)
+        print("[PASS] Step 13: Bulk JSON Import parsed and created multiple questions successfully")
 
 if __name__ == '__main__':
     unittest.main()

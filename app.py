@@ -1,6 +1,7 @@
 import os
 import csv
 import io
+import json
 from functools import wraps
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, send_from_directory, Response
@@ -274,6 +275,80 @@ def admin_questions():
 
     questions = Question.query.order_by(Question.created_at.desc()).all()
     return render_template('admin/questions.html', questions=questions)
+
+@app.route('/admin/questions/bulk_import', methods=['POST'])
+@login_required
+@admin_required
+def bulk_import_questions():
+    json_text = request.form.get('json_text', '').strip()
+    json_file = request.files.get('json_file')
+    
+    raw_content = ""
+    if json_file and json_file.filename:
+        try:
+            raw_content = json_file.read().decode('utf-8')
+        except Exception as e:
+            flash(f'Error reading JSON file: {e}', 'danger')
+            return redirect(url_for('admin_questions'))
+    elif json_text:
+        raw_content = json_text
+        
+    if not raw_content:
+        flash('Please paste JSON text or upload a .json file.', 'warning')
+        return redirect(url_for('admin_questions'))
+        
+    try:
+        # Clean markdown codeblocks if AI returned ```json ... ```
+        cleaned = raw_content.replace('```json', '').replace('```', '').strip()
+        data = json.loads(cleaned)
+        
+        questions_list = []
+        if isinstance(data, list):
+            questions_list = data
+        elif isinstance(data, dict):
+            questions_list = data.get('questions', data.get('data', [data]))
+            
+        if not questions_list or not isinstance(questions_list, list):
+            flash('No valid questions array found in JSON payload.', 'warning')
+            return redirect(url_for('admin_questions'))
+            
+        count = 0
+        for item in questions_list:
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get('title', '')).strip()
+            description = str(item.get('description', '')).strip()
+            if not title or not description:
+                continue
+                
+            category = str(item.get('category', 'General')).strip()
+            try:
+                max_marks = float(item.get('max_marks', 10.0))
+            except (ValueError, TypeError):
+                max_marks = 10.0
+                
+            solution_hint = str(item.get('solution_hint') or item.get('sample_answer_key') or item.get('solution') or '').strip()
+            
+            q = Question(
+                title=title,
+                description=description,
+                max_marks=max_marks,
+                category=category,
+                solution_hint=solution_hint,
+                created_by_id=current_user.id
+            )
+            db.session.add(q)
+            count += 1
+            
+        db.session.commit()
+        flash(f'Successfully bulk-imported {count} questions!', 'success')
+    except json.JSONDecodeError as e:
+        flash(f'Invalid JSON format: {e}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Bulk import error: {e}', 'danger')
+        
+    return redirect(url_for('admin_questions'))
 
 @app.route('/admin/questions/<int:question_id>/delete', methods=['POST'])
 @login_required
