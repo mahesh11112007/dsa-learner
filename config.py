@@ -14,7 +14,12 @@ class Config:
     SQLALCHEMY_DATABASE_URI = db_url or ('sqlite:///' + os.path.join(BASE_DIR, 'dsa_qa.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
+    # Handle read-only filesystem on Vercel / serverless deployments
+    if os.environ.get('VERCEL'):
+        UPLOAD_FOLDER = '/tmp/uploads'
+    else:
+        UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
+        
     QUESTION_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'questions')
     SUBMISSION_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'submissions')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}

@@ -18,8 +18,12 @@ app.config.from_object(Config)
 db.init_app(app)
 
 with app.app_context():
-    os.makedirs(app.config['QUESTION_UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['SUBMISSION_UPLOAD_FOLDER'], exist_ok=True)
+    try:
+        os.makedirs(app.config['QUESTION_UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(app.config['SUBMISSION_UPLOAD_FOLDER'], exist_ok=True)
+    except Exception as e:
+        print(f"[Warning] Directory creation error: {e}")
+        
     try:
         db.create_all()
         # Auto-seed admin user if no admin exists
