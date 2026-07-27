@@ -26,6 +26,19 @@ with app.app_context():
         
     try:
         db.create_all()
+        from sqlalchemy import text
+        try:
+            db.session.execute(text("ALTER TABLE questions ADD COLUMN category VARCHAR(50) DEFAULT 'General'"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+        try:
+            db.session.execute(text("ALTER TABLE questions ADD COLUMN solution_hint TEXT"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
         # Auto-seed admin user if no admin exists
         if not User.query.filter_by(role='admin').first():
             mahesh = User(username='mahesh', full_name='Mahesh', role='admin')
