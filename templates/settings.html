@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings | DSA QA Portal{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2.2rem;">
+  <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;">Account Settings</h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem;">Manage your profile information, password security, and account preferences.</p>
+</div>
+
+<!-- Profile Overview Header Banner -->
+<div class="panel" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%); border-color: rgba(99, 102, 241, 0.3); margin-bottom: 2.2rem;">
+  <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+    <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--primary-gradient); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);">
+      {{ current_user.full_name[:1].upper() }}
+    </div>
+    <div style="flex: 1;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.3rem;">
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main);">{{ current_user.full_name }}</h2>
+        <span class="role-tag role-{{ current_user.role }}">{{ current_user.role }}</span>
+      </div>
+      <div style="display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.88rem;">
+        <span><i class="fa-solid fa-at" style="color: var(--accent-cyan);"></i> Username: <code style="color: var(--text-main);">{{ current_user.username }}</code></span>
+        <span><i class="fa-regular fa-calendar" style="color: var(--accent-cyan);"></i> Account Created: {{ current_user.created_at.strftime('%b %d, %Y') }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem;">
+
+  <!-- Profile Information Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title"><i class="fa-solid fa-user-gear" style="color: var(--accent-cyan);"></i> Profile Details</h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('settings') }}">
+      <input type="hidden" name="action" value="update_profile">
+
+      <div class="form-group">
+        <label for="full_name"><i class="fa-solid fa-signature"></i> Full Display Name</label>
+        <input type="text" id="full_name" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="display_username"><i class="fa-solid fa-user-lock"></i> Account Username (Read-Only)</label>
+        <input type="text" id="display_username" class="form-control" value="{{ current_user.username }}" disabled style="opacity: 0.6; cursor: not-allowed;">
+        <span style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.25rem; display: block;">Usernames are managed by Administrator.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="display_role"><i class="fa-solid fa-shield-halved"></i> Access Role</label>
+        <input type="text" id="display_role" class="form-control" value="{{ current_user.role|capitalize }}" disabled style="opacity: 0.6; cursor: not-allowed;">
+      </div>
+
+      <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;">
+        <i class="fa-solid fa-floppy-disk"></i> Update Profile Info
+      </button>
+    </form>
+  </div>
+
+  <!-- Security & Password Change Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title"><i class="fa-solid fa-lock" style="color: var(--accent-amber);"></i> Password Security</h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('settings') }}">
+      <input type="hidden" name="action" value="change_password">
+
+      <div class="form-group">
+        <label for="current_password"><i class="fa-solid fa-key"></i> Current Password</label>
+        <input type="password" id="current_password" name="current_password" class="form-control" placeholder="Enter current password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="new_password"><i class="fa-solid fa-lock"></i> New Password</label>
+        <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Minimum 6 characters" required>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password"><i class="fa-solid fa-check-double"></i> Confirm New Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter new password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+        <i class="fa-solid fa-shield-check"></i> Save New Password
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Account Management | Admin Portal{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2.2rem;">
+  <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;">Student & Admin Accounts</h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem;">Create and manage student user credentials. Public self-registration is restricted.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.75rem;">
+
+  <!-- User Creation Form Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title"><i class="fa-solid fa-user-plus" style="color: var(--accent-cyan);"></i> Create Account</h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_users') }}">
+      <div class="form-group">
+        <label for="full_name"><i class="fa-solid fa-id-card" style="margin-right: 0.3rem; color: var(--accent-cyan);"></i> Full Name</label>
+        <input type="text" id="full_name" name="full_name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+      </div>
+
+      <div class="form-group">
+        <label for="username"><i class="fa-solid fa-at" style="margin-right: 0.3rem; color: var(--accent-cyan);"></i> Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="e.g. rahul_s" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password"><i class="fa-solid fa-key" style="margin-right: 0.3rem; color: var(--accent-cyan);"></i> Default Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Account password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="role"><i class="fa-solid fa-user-gear" style="margin-right: 0.3rem; color: var(--accent-cyan);"></i> Role</label>
+        <select id="role" name="role" class="form-control">
+          <option value="student" selected>Student User</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+        <i class="fa-solid fa-user-check"></i> Create Account
+      </button>
+    </form>
+  </div>
+
+  <!-- Accounts List Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title"><i class="fa-solid fa-users" style="color: #a5b4fc;"></i> Directory ({{ users|length }})</h2>
+      <div style="width: 220px;">
+        <input type="text" class="form-control" placeholder="🔍 Search users..." data-search-target=".user-row" style="padding: 0.35rem 0.8rem; font-size: 0.85rem;">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr class="user-row">
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div class="avatar-circle">{{ u.full_name[:1].upper() }}</div>
+                  <strong style="color: var(--text-main);">{{ u.full_name }}</strong>
+                </div>
+              </td>
+              <td>
+                <code style="background: rgba(255, 255, 255, 0.06); padding: 0.2rem 0.5rem; border-radius: 6px; color: var(--accent-cyan); font-size: 0.85rem;">@{{ u.username }}</code>
+              </td>
+              <td>
+                <span class="role-tag role-{{ u.role }}">{{ u.role }}</span>
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+              <td>
+                {% if u.id != current_user.id %}
+                  <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <form method="POST" action="{{ url_for('admin_reset_password', user_id=u.id) }}" style="display:flex; gap:0.3rem;" onsubmit="const pwd = prompt('Enter new password for {{ u.username }}:'); if(!pwd) return false; this.querySelector('[name=new_password]').value = pwd;">
+                      <input type="hidden" name="new_password" value="">
+                      <button type="submit" class="btn btn-secondary btn-sm" title="Reset Password">
+                        <i class="fa-solid fa-key" style="color: var(--accent-amber);"></i> Reset
+                      </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('delete_user', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Delete user {{ u.username }}?');">
+                      <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </form>
+                  </div>
+                {% else %}
+                  <span style="font-size: 0.8rem; color: var(--text-dim); font-style: italic;">(Active Account)</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

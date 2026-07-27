@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DSA QA & Evaluation Portal{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Prism.js Dark Syntax Highlighting Theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header>
+    <nav class="navbar">
+      <a href="{{ url_for('index') }}" class="brand">
+        <div class="brand-logo-icon"><i class="fa-solid fa-code"></i></div>
+        <span class="brand-text-gradient">DSA QA Portal</span>
+      </a>
+
+      {% if current_user.is_authenticated %}
+      <ul class="nav-links">
+        {% if current_user.is_admin() %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin_dashboard') }}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('admin_users') }}"><i class="fa-solid fa-users-gear"></i> Accounts</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('admin_questions') }}"><i class="fa-solid fa-book-open"></i> Question Bank</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('admin_submissions') }}"><i class="fa-solid fa-graduation-cap"></i> Submissions</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a href="{{ url_for('student_dashboard') }}"><i class="fa-solid fa-laptop-code"></i> Questions</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('my_submissions') }}"><i class="fa-solid fa-award"></i> My Results</a>
+          </li>
+        {% endif %}
+      </ul>
+
+      <div style="display: flex; align-items: center; gap: 0.85rem;">
+        <div class="user-profile-badge">
+          <div class="avatar-circle">{{ current_user.full_name[:1].upper() }}</div>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-weight: 600; line-height: 1.2;">{{ current_user.full_name }}</span>
+            <span class="role-tag role-{{ current_user.role }}">{{ current_user.role }}</span>
+          </div>
+        </div>
+        <a href="{{ url_for('settings') }}" class="btn btn-secondary btn-sm" title="Account Settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
+      </div>
+      {% endif %}
+    </nav>
+  </header>
+
+  <!-- Flash Messages Container -->
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                {% if category == 'success' %}
+                  <i class="fa-solid fa-circle-check"></i>
+                {% elif category == 'danger' %}
+                  <i class="fa-solid fa-circle-exclamation"></i>
+                {% else %}
+                  <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+              </div>
+              <button onclick="this.parentElement.remove()" style="background:none; border:none; color:inherit; cursor:pointer; font-size:1.1rem;">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>&copy; 2026 DSA QA Portal &bull; Enterprise Question Answering & Grading Platform</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <!-- Prism.js Syntax Highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

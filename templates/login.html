@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | DSA QA Portal{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+  <div class="login-card">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div
+        style="width: 56px; height: 56px; background: var(--primary-gradient); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; color: white; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); margin-bottom: 1rem;">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+      <h1 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;">Welcome</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Sign in to access your portal
+        dashboard</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label for="username"><i class="fa-solid fa-user" style="margin-right: 0.3rem; color: var(--accent-cyan);"></i>
+          Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required
+          autofocus>
+      </div>
+
+      <div class="form-group">
+        <label for="password"><i class="fa-solid fa-lock" style="margin-right: 0.3rem; color: var(--accent-cyan);"></i>
+          Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+        <span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+
+    <div
+      style="margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle); font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+      <div
+        style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.03); padding: 0.65rem; border-radius: 10px; border: 1px solid var(--border-subtle);">
+        <i class="fa-solid fa-circle-info" style="color: var(--accent-amber);"></i>
+        <span>Public registration disabled. Accounts created by Administrator.</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Submissions Directory | Admin Portal{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.2rem;">
+  <div>
+    <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;">Student Submissions</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Review student code & diagram answers, award scores, and provide feedback.</p>
+  </div>
+
+  <div style="display: flex; gap: 0.85rem; align-items: center;">
+    <div style="display: flex; gap: 0.4rem; background: rgba(15, 23, 42, 0.9); padding: 0.35rem; border-radius: 12px; border: 1px solid var(--border-subtle);">
+      <a href="{{ url_for('admin_submissions', status='all') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'all' else 'btn-secondary' }}">All</a>
+      <a href="{{ url_for('admin_submissions', status='pending') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'pending' else 'btn-secondary' }}">Pending</a>
+      <a href="{{ url_for('admin_submissions', status='graded') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'graded' else 'btn-secondary' }}">Graded</a>
+    </div>
+    <a href="{{ url_for('export_csv') }}" class="btn btn-secondary btn-sm">
+      <i class="fa-solid fa-file-csv" style="color: var(--accent-emerald);"></i> Export CSV Report
+    </a>
+  </div>
+</div>
+
+<div class="panel">
+  {% if submissions %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Question</th>
+            <th>Submission Attachments</th>
+            <th>Date</th>
+            <th>Marks</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in submissions %}
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.7rem;">
+                  <div class="avatar-circle">{{ sub.student.full_name[:1].upper() }}</div>
+                  <div>
+                    <strong style="color: var(--text-main); display: block;">{{ sub.student.full_name }}</strong>
+                    <code style="color: var(--accent-cyan); font-size: 0.78rem;">@{{ sub.student.username }}</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <strong style="color: var(--text-main);">{{ sub.question.title }}</strong><br>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Max Points: {{ sub.question.max_marks }}</span>
+              </td>
+              <td>
+                {% if sub.answer_text %}
+                  <span style="font-size: 0.82rem; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.25);">
+                    <i class="fa-solid fa-code"></i> Code / Text
+                  </span>
+                {% endif %}
+                {% if sub.image_filename %}
+                  <span style="font-size: 0.82rem; color: #a5f3fc; background: rgba(6, 182, 212, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.25);">
+                    <i class="fa-solid fa-image"></i> Image Solution
+                  </span>
+                {% endif %}
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">{{ sub.submitted_at.strftime('%b %d, %Y %H:%M') }}</td>
+              <td>
+                {% if sub.marks_awarded is not none %}
+                  <strong style="color: var(--accent-emerald); font-size: 1.15rem;">{{ sub.marks_awarded }}</strong> <span style="color: var(--text-dim); font-size: 0.85rem;">/ {{ sub.question.max_marks }}</span>
+                {% else %}
+                  <span style="color: var(--text-dim);">-</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge badge-{{ 'graded' if sub.status == 'graded' else 'pending' }}">
+                  <span class="status-dot {{ sub.status }}"></span> {{ sub.status }}
+                </span>
+              </td>
+              <td>
+                <a href="{{ url_for('grade_submission', submission_id=sub.id) }}" class="btn btn-primary btn-sm">
+                  <i class="fa-solid fa-feather-pointed"></i> {{ 'Edit Grade' if sub.status == 'graded' else 'Evaluate Answer' }}
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 3.5rem 1rem; color: var(--text-dim);">
+      <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4;"></i>
+      <p style="font-size: 1.1rem;">No submissions found for this filter.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

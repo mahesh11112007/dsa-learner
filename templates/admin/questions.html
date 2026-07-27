@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Question Bank | Admin Portal{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2.2rem;">
+  <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;">Question Bank Repository</h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem;">Publish questions with text instructions, code snippets, problem diagrams, and submission deadlines.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1.8fr; gap: 1.75rem;">
+
+  <!-- Create Question Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title"><i class="fa-solid fa-folder-plus" style="color: var(--accent-cyan);"></i> Publish Question</h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_questions') }}" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="title">Question Title</label>
+        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Binary Search Tree Inorder Traversal" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Question Instructions / Problem Statement</label>
+        <textarea id="description" name="description" class="form-control" placeholder="Type problem description, constraints, and sample inputs..." required style="min-height: 130px;"></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="max_marks">Maximum Marks</label>
+          <input type="number" step="0.5" id="max_marks" name="max_marks" class="form-control" value="10.0" min="1" max="100" required>
+        </div>
+
+        <div class="form-group">
+          <label for="due_date">Deadline (Optional)</label>
+          <input type="datetime-local" id="due_date" name="due_date" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Attach Problem Diagram / Code Image (Optional)</label>
+        <div class="file-upload-box" onclick="document.getElementById('q_image').click();">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent-cyan); display: block; margin-bottom: 0.4rem;"></i>
+          <span style="font-size: 0.88rem; color: var(--text-muted);">Click to attach diagram screenshot (PNG, JPG, WEBP)</span>
+          <input type="file" id="q_image" name="image" accept="image/*" data-preview="q_preview">
+        </div>
+        <img id="q_preview" class="file-preview" style="display: none;" alt="Question Preview">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+        <i class="fa-solid fa-paper-plane"></i> Publish Question
+      </button>
+    </form>
+  </div>
+
+  <!-- Questions List Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title"><i class="fa-solid fa-book-bookmark" style="color: #a5b4fc;"></i> Published Questions ({{ questions|length }})</h2>
+    </div>
+
+    {% if questions %}
+      <div style="display: flex; flex-direction: column; gap: 1.35rem;">
+        {% for q in questions %}
+          <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.4rem; transition: border-color 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; gap: 1rem;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); line-height: 1.3;">{{ q.title }}</h3>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">
+                <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.35);">
+                  <i class="fa-solid fa-star"></i> {{ q.max_marks }} pts
+                </span>
+                {% if q.due_date %}
+                  <span class="badge" style="background: {{ 'rgba(244, 63, 94, 0.2)' if q.is_past_due() else 'rgba(245, 158, 11, 0.2)' }}; color: {{ '#fecdd3' if q.is_past_due() else '#fde047' }}; border: 1px solid {{ 'rgba(244, 63, 94, 0.35)' if q.is_past_due() else 'rgba(245, 158, 11, 0.35)' }};">
+                    <i class="fa-regular fa-clock"></i> {{ 'Closed' if q.is_past_due() else 'Due: ' + q.due_date.strftime('%b %d, %H:%M') }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 0.93rem; white-space: pre-wrap; margin-bottom: 0.9rem;">{{ q.description }}</p>
+
+            {% if q.image_filename %}
+              <div style="margin-bottom: 0.9rem; padding: 0.75rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; border: 1px solid var(--border-subtle);">
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.3rem;">
+                  <i class="fa-solid fa-image"></i> Problem Diagram Attachment (Click to view full image):
+                </span>
+                <img src="{{ url_for('uploaded_question_file', filename=q.image_filename) }}" class="img-thumb" alt="{{ q.title }}" style="max-height: 180px;">
+              </div>
+            {% endif %}
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.85rem; border-top: 1px solid var(--border-subtle); font-size: 0.85rem; color: var(--text-dim);">
+              <span><i class="fa-solid fa-file-arrow-up"></i> Total Submissions: <strong style="color: var(--text-main);">{{ q.submissions|length }}</strong></span>
+              <form method="POST" action="{{ url_for('delete_question', question_id=q.id) }}" style="display: inline;" onsubmit="return confirm('Delete this question and all student submissions?');">
+                <button type="submit" class="btn btn-danger btn-sm">
+                  <i class="fa-solid fa-trash"></i> Delete Question
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem 1rem; color: var(--text-dim);">
+        <i class="fa-solid fa-book-open" style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4;"></i>
+        <p>No questions published yet.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

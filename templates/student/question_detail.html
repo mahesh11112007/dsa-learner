@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ question.title }} | Student Portal{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.75rem;">
+  <a href="{{ url_for('student_dashboard') }}" style="color: var(--accent-cyan); text-decoration: none; font-size: 0.9rem; font-weight: 600;">
+    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+  </a>
+  <h1 style="font-size: 1.85rem; font-weight: 800; margin-top: 0.35rem; letter-spacing: -0.5px;">{{ question.title }}</h1>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.75rem;">
+
+  <!-- Left Column: Question Details & Attachment -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title"><i class="fa-solid fa-circle-question" style="color: #a5b4fc;"></i> Question Prompt</h2>
+      <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.35);">
+        <i class="fa-solid fa-star"></i> Max Points: {{ question.max_marks }}
+      </span>
+    </div>
+
+    <p style="color: var(--text-main); font-size: 0.98rem; white-space: pre-wrap; margin-bottom: 1.35rem; line-height: 1.6;">{{ question.description }}</p>
+
+    {% if question.image_filename %}
+      <div style="padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+        <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.4rem;">
+          <i class="fa-solid fa-image"></i> Problem Diagram Attachment (Click to zoom):
+        </span>
+        <img src="{{ url_for('uploaded_question_file', filename=question.image_filename) }}" class="img-thumb" alt="Question Image" style="max-height: 280px;">
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Column: Submission Form / Graded Results -->
+  <div>
+    <!-- If Graded, Show Grade Card -->
+    {% if submission and submission.status == 'graded' %}
+      <div class="panel" style="border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.04); box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);">
+        <div class="panel-header">
+          <h2 class="panel-title" style="color: var(--accent-emerald);"><i class="fa-solid fa-trophy"></i> Evaluation Results</h2>
+          <span class="badge badge-graded"><span class="status-dot graded"></span> Graded</span>
+        </div>
+
+        <div style="margin-bottom: 1.35rem;">
+          <span style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem; text-transform: uppercase; font-weight: 700;">Awarded Points:</span>
+          <span style="font-size: 2.5rem; font-weight: 800; color: var(--accent-emerald);">{{ submission.marks_awarded }}</span>
+          <span style="font-size: 1.2rem; color: var(--text-muted);"> / {{ question.max_marks }} pts</span>
+        </div>
+
+        {% if submission.feedback %}
+          <div style="background: rgba(7, 10, 18, 0.8); border: 1px solid var(--border-subtle); padding: 1.1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+            <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 700; display: block; margin-bottom: 0.4rem;">
+              <i class="fa-solid fa-comment-dots"></i> Teacher Feedback:
+            </span>
+            <p style="color: var(--text-main); font-size: 0.95rem; white-space: pre-wrap; line-height: 1.5;">{{ submission.feedback }}</p>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Submission Form Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">
+          {% if submission %}
+            <i class="fa-solid fa-pen-to-square" style="color: var(--accent-cyan);"></i> {{ 'Update Your Submission' if submission.status == 'submitted' else 'Your Submitted Answer' }}
+          {% else %}
+            <i class="fa-solid fa-paper-plane" style="color: var(--accent-cyan);"></i> Submit Answer
+          {% endif %}
+        </h2>
+      </div>
+
+      <form method="POST" action="{{ url_for('question_detail', question_id=question.id) }}" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="answer_text">Text / Code Solution</label>
+          <textarea id="answer_text" name="answer_text" class="form-control" placeholder="Write step-by-step code solution, algorithm logic, or explanation..." style="min-height: 170px; font-family: 'Fira Code', monospace;">{{ submission.answer_text if submission else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Upload Solution Image / Diagram (Optional)</label>
+          <div class="file-upload-box" onclick="document.getElementById('ans_image').click();">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent-cyan); display: block; margin-bottom: 0.4rem;"></i>
+            <span style="font-size: 0.88rem; color: var(--text-muted);">Click to attach photo of handwritten work, flowchart, or diagram</span>
+            <input type="file" id="ans_image" name="image" accept="image/*" data-preview="ans_preview">
+          </div>
+          
+          {% if submission and submission.image_filename %}
+            <div style="margin-top: 0.85rem;">
+              <span style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Currently Attached Image Solution:</span>
+              <img src="{{ url_for('uploaded_submission_file', filename=submission.image_filename) }}" class="img-thumb" alt="Your Answer Image" style="max-height: 180px;">
+            </div>
+          {% endif %}
+          
+          <img id="ans_preview" class="file-preview" style="display: none;" alt="New Upload Preview">
+        </div>
+
+        {% if question.is_past_due() %}
+          <div style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose); color: #fecdd3; padding: 0.95rem; border-radius: var(--radius-md); text-align: center; margin-top: 1.25rem; font-weight: 600;">
+            <i class="fa-solid fa-lock"></i> The deadline for this question has passed. Submissions are closed.
+          </div>
+        {% elif not submission or submission.status == 'submitted' %}
+          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+            <i class="fa-solid fa-rocket"></i> {{ 'Update Answer' if submission else 'Submit Answer' }}
+          </button>
+        {% else %}
+          <p style="font-size: 0.88rem; color: var(--text-dim); text-align: center; margin-top: 1.25rem; font-style: italic;">
+            <i class="fa-solid fa-lock"></i> This question has been evaluated by admin. Resubmissions locked.
+          </p>
+        {% endif %}
+      </form>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
