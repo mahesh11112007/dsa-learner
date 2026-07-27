@@ -14,6 +14,12 @@ class Config:
     SQLALCHEMY_DATABASE_URI = db_url or ('sqlite:///' + os.path.join(BASE_DIR, 'dsa_qa.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
+    # Connection Pool settings optimized for Vercel Serverless & Neon DB
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
+    
     # Handle read-only filesystem on Vercel / serverless deployments
     if os.environ.get('VERCEL'):
         UPLOAD_FOLDER = '/tmp/uploads'

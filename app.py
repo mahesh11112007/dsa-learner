@@ -19,29 +19,22 @@ app.url_map.strict_slashes = False
 # Initialize extensions
 db.init_app(app)
 
-with app.app_context():
+_db_initialized = False
+
+def ensure_db_initialized():
+    global _db_initialized
+    if _db_initialized:
+        return
+    _db_initialized = True
+    
     try:
         os.makedirs(app.config['QUESTION_UPLOAD_FOLDER'], exist_ok=True)
         os.makedirs(app.config['SUBMISSION_UPLOAD_FOLDER'], exist_ok=True)
-    except Exception as e:
-        print(f"[Warning] Directory creation error: {e}")
-        
+    except Exception:
+        pass
+
     try:
         db.create_all()
-        from sqlalchemy import text
-        try:
-            db.session.execute(text("ALTER TABLE questions ADD COLUMN category VARCHAR(50) DEFAULT 'General'"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-
-        try:
-            db.session.execute(text("ALTER TABLE questions ADD COLUMN solution_hint TEXT"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-
-        # Auto-seed admin user if no admin exists
         if not User.query.filter_by(role='admin').first():
             mahesh = User(username='mahesh', full_name='Mahesh', role='admin')
             mahesh.set_password('12341234')
@@ -54,7 +47,11 @@ with app.app_context():
             db.session.commit()
             print("[INFO] Auto-seeded default admin users into database.")
     except Exception as e:
-        print(f"[Warning] DB initialization error: {e}")
+        print(f"[Warning] DB initialization note: {e}")
+
+@app.before_request
+def before_request():
+    ensure_db_initialized()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
