@@ -27,7 +27,12 @@
         <textarea id="description" name="description" class="form-control" placeholder="Type problem description, constraints, and sample inputs..." required style="min-height: 130px;"></textarea>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 0.85rem;">
+        <div class="form-group">
+          <label for="category">Category</label>
+          <input type="text" id="category" name="category" class="form-control" placeholder="e.g. Data Structures" value="Data Structures">
+        </div>
+
         <div class="form-group">
           <label for="max_marks">Maximum Marks</label>
           <input type="number" step="0.5" id="max_marks" name="max_marks" class="form-control" value="10.0" min="1" max="100" required>
@@ -37,6 +42,11 @@
           <label for="due_date">Deadline (Optional)</label>
           <input type="datetime-local" id="due_date" name="due_date" class="form-control">
         </div>
+      </div>
+
+      <div class="form-group">
+        <label for="solution_hint"><i class="fa-solid fa-lightbulb" style="color: var(--accent-amber);"></i> Solution Hint / Reference Key (Optional)</label>
+        <textarea id="solution_hint" name="solution_hint" class="form-control" placeholder="Enter reference solution or AI grading key for admin evaluation..." style="min-height: 80px;"></textarea>
       </div>
 
       <div class="form-group">

@@ -38,6 +38,8 @@ class Question(db.Model):
     image_filename = db.Column(db.String(255), nullable=True)
     max_marks = db.Column(db.Float, nullable=False, default=10.0)
     due_date = db.Column(db.DateTime, nullable=True)
+    category = db.Column(db.String(50), default='General')
+    solution_hint = db.Column(db.Text, nullable=True)
     created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     

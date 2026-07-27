@@ -235,6 +235,9 @@ def admin_questions():
             except ValueError:
                 pass
 
+        category = request.form.get('category', 'General').strip()
+        solution_hint = request.form.get('solution_hint', '').strip()
+
         file = request.files.get('image')
         image_filename = save_file(file, app.config['QUESTION_UPLOAD_FOLDER'])
         
@@ -247,6 +250,8 @@ def admin_questions():
                 image_filename=image_filename,
                 max_marks=max_marks,
                 due_date=due_date,
+                category=category,
+                solution_hint=solution_hint,
                 created_by_id=current_user.id
             )
             db.session.add(question)

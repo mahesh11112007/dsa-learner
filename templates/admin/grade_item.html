@@ -33,6 +33,15 @@
 
       <p style="color: var(--text-main); white-space: pre-wrap; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.6;">{{ question.description }}</p>
 
+      {% if question.solution_hint %}
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); padding: 0.85rem 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+          <span style="font-size: 0.82rem; color: var(--accent-amber); font-weight: 700; display: block; margin-bottom: 0.3rem;">
+            <i class="fa-solid fa-lightbulb"></i> Reference Solution Key / Grading Hint:
+          </span>
+          <p style="color: #fde047; font-size: 0.9rem; white-space: pre-wrap;">{{ question.solution_hint }}</p>
+        </div>
+      {% endif %}
+
       {% if question.image_filename %}
         <div style="margin-top: 0.75rem; padding-top: 0.85rem; border-top: 1px solid var(--border-subtle);">
           <span style="font-size: 0.82rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.4rem;">
