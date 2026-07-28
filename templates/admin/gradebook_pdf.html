@@ -174,6 +174,20 @@
     .status-graded { background: #d1fae5 !important; color: #047857 !important; }
     .status-submitted { background: #fef3c7 !important; color: #b45309 !important; }
 
+    /* Compact Feedback Truncation for Neat Rows */
+    .feedback-text {
+      color: #334155;
+      font-size: 0.74rem;
+      line-height: 1.3;
+      max-height: 52px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+      word-break: break-word;
+    }
+
     @media print {
       @page {
         size: A4 portrait;
@@ -204,6 +218,10 @@
         padding: 0.65rem 0.8rem !important;
         page-break-inside: auto !important;
         break-inside: auto !important;
+      }
+      .feedback-text {
+        max-height: 48px !important;
+        -webkit-line-clamp: 3 !important;
       }
       th {
         background-color: #e2e8f0 !important;
@@ -310,7 +328,9 @@
                     </span>
                   </td>
                   <td>{{ sub.submitted_at.strftime('%b %d, %Y') if sub.submitted_at else 'N/A' }}</td>
-                  <td style="color: #334155; font-size: 0.78rem; line-height: 1.35; white-space: pre-line;">{{ sub.feedback or 'No feedback provided' }}</td>
+                  <td>
+                    <div class="feedback-text">{{ sub.feedback or 'No feedback provided' }}</div>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
