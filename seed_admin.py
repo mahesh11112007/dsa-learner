@@ -1,7 +1,7 @@
 import os
 from app import app
 from database import db
-from models import User
+from models import User, StudyNote
 
 def init_db_and_admin():
     with app.app_context():
@@ -32,9 +32,52 @@ def init_db_and_admin():
             print("[SUCCESS] Updated admin user 'admin' (password: admin123)")
 
         db.session.commit()
-        print("[SUCCESS] All admin credentials successfully updated in database!")
+
+        # Seed initial sample study notes if empty
+        if StudyNote.query.count() == 0 and mahesh:
+            sample_note = StudyNote(
+                title="Graph Algorithms Cheatsheet - BFS vs DFS",
+                category="Graphs",
+                content="""# Graph Traversal Cheatsheet: BFS vs DFS
+
+## 1. Breadth-First Search (BFS)
+- **Data Structure**: Uses a Queue (FIFO).
+- **Time Complexity**: O(V + E)
+- **Space Complexity**: O(V)
+- **Use Cases**: Finding shortest path in unweighted graphs, level-order traversal.
+
+```cpp
+void bfs(int start, vector<vector<int>>& adj, vector<bool>& visited) {
+    queue<int> q;
+    q.push(start);
+    visited[start] = true;
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        for (int v : adj[u]) {
+            if (!visited[v]) {
+                visited[v] = true;
+                q.push(v);
+            }
+        }
+    }
+}
+```
+
+## 2. Depth-First Search (DFS)
+- **Data Structure**: Uses Stack / Recursion.
+- **Time Complexity**: O(V + E)
+- **Space Complexity**: O(V) stack space.
+- **Use Cases**: Cycle detection, topological sort, solving mazes/puzzles.""",
+                created_by_id=mahesh.id
+            )
+            db.session.add(sample_note)
+            db.session.commit()
+            print("[SUCCESS] Sample Study Note seeded!")
+
+        print("[SUCCESS] All admin credentials and initial data updated in database!")
 
 if __name__ == '__main__':
     os.makedirs(app.config['QUESTION_UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['SUBMISSION_UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['NOTE_UPLOAD_FOLDER'], exist_ok=True)
     init_db_and_admin()

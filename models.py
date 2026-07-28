@@ -87,3 +87,19 @@ class Notice(db.Model):
     def __repr__(self):
         return f"<Notice {self.title}>"
 
+
+class StudyNote(db.Model):
+    __tablename__ = 'notes'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(50), default='General')  # 'Arrays', 'Trees', 'Graphs', 'DP', 'Cheatsheets'
+    attachment_filename = db.Column(db.String(255), nullable=True)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    author = db.relationship('User', backref='notes_created', lazy=True)
+
+    def __repr__(self):
+        return f"<StudyNote {self.title}>"

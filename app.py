@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from config import Config
 from database import db
-from models import User, Question, Submission, Notice
+from models import User, Question, Submission, Notice, StudyNote
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -30,6 +30,7 @@ def ensure_db_initialized():
     try:
         os.makedirs(app.config['QUESTION_UPLOAD_FOLDER'], exist_ok=True)
         os.makedirs(app.config['SUBMISSION_UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(app.config['NOTE_UPLOAD_FOLDER'], exist_ok=True)
     except Exception:
         pass
 
@@ -595,6 +596,70 @@ def my_submissions():
     submissions = Submission.query.filter_by(student_id=current_user.id).order_by(Submission.submitted_at.desc()).all()
     return render_template('student/my_submissions.html', submissions=submissions)
 
+# Study Notes Routes
+@app.route('/notes')
+@login_required
+def notes_index():
+    category = request.args.get('category', '').strip()
+    search = request.args.get('search', '').strip()
+    
+    query = StudyNote.query
+    if category:
+        query = query.filter_by(category=category)
+    if search:
+        query = query.filter(StudyNote.title.ilike(f'%{search}%') | StudyNote.content.ilike(f'%{search}%'))
+        
+    notes = query.order_by(StudyNote.created_at.desc()).all()
+    categories = [r[0] for r in db.session.query(StudyNote.category).distinct().all() if r[0]]
+    
+    return render_template('notes/index.html', notes=notes, categories=categories, selected_category=category, search=search)
+
+@app.route('/notes/<int:note_id>')
+@login_required
+def note_detail(note_id):
+    note = StudyNote.query.get_or_404(note_id)
+    return render_template('notes/detail.html', note=note)
+
+@app.route('/admin/notes', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_notes():
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        content = request.form.get('content', '').strip()
+        category = request.form.get('category', 'General').strip()
+        
+        file = request.files.get('attachment')
+        attachment_filename = save_file(file, app.config['NOTE_UPLOAD_FOLDER'])
+        
+        if not title or not content:
+            flash('Title and note content are required.', 'danger')
+        else:
+            note = StudyNote(
+                title=title,
+                content=content,
+                category=category,
+                attachment_filename=attachment_filename,
+                created_by_id=current_user.id
+            )
+            db.session.add(note)
+            db.session.commit()
+            flash(f'Study Note "{title}" published successfully!', 'success')
+            return redirect(url_for('admin_notes'))
+            
+    notes = StudyNote.query.order_by(StudyNote.created_at.desc()).all()
+    return render_template('admin/manage_notes.html', notes=notes)
+
+@app.route('/admin/notes/<int:note_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_note(note_id):
+    note = StudyNote.query.get_or_404(note_id)
+    db.session.delete(note)
+    db.session.commit()
+    flash(f'Study Note "{note.title}" deleted.', 'success')
+    return redirect(url_for('admin_notes'))
+
 # Upload File Serving Helpers
 @app.route('/uploads/questions/<filename>')
 @login_required
@@ -605,6 +670,11 @@ def uploaded_question_file(filename):
 @login_required
 def uploaded_submission_file(filename):
     return send_from_directory(app.config['SUBMISSION_UPLOAD_FOLDER'], filename)
+
+@app.route('/uploads/notes/<filename>')
+@login_required
+def uploaded_note_file(filename):
+    return send_from_directory(app.config['NOTE_UPLOAD_FOLDER'], filename)
 
 # Run app
 if __name__ == '__main__':

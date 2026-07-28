@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>{% block title %}DSA QA & Evaluation Portal{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <!-- FontAwesome Icons -->
@@ -34,12 +34,18 @@
           <li class="nav-item">
             <a href="{{ url_for('admin_submissions') }}"><i class="fa-solid fa-graduation-cap"></i> Submissions</a>
           </li>
+          <li class="nav-item">
+            <a href="{{ url_for('notes_index') }}"><i class="fa-solid fa-book-bookmark"></i> Study Notes</a>
+          </li>
         {% else %}
           <li class="nav-item">
             <a href="{{ url_for('student_dashboard') }}"><i class="fa-solid fa-laptop-code"></i> Questions</a>
           </li>
           <li class="nav-item">
             <a href="{{ url_for('my_submissions') }}"><i class="fa-solid fa-award"></i> My Results</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('notes_index') }}"><i class="fa-solid fa-book-bookmark"></i> Study Notes</a>
           </li>
         {% endif %}
       </ul>

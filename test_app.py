@@ -154,11 +154,13 @@ class FlaskAppTestCase(unittest.TestCase):
         print("[PASS] Step 12a: Profile information updated in Settings")
 
         self.client.get('/logout')
-        self.client.post('/login', data={'username': 'admin', 'password': 'admin123'})
-        response = self.client.post('/admin/users/2/reset_password', data={
+        self.client.post('/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=True)
+        student_user = User.query.filter_by(username='student1').first()
+        response = self.client.post(f'/admin/users/{student_user.id}/reset_password', data={
             'new_password': 'resetpass789'
         }, follow_redirects=True)
         self.assertIn(b'reset successfully!', response.data)
+        print("[PASS] Step 12b: Admin reset student password directly from user directory")
         # 13. Bulk JSON Import
         bulk_json = '''{
             "questions": [
@@ -170,7 +172,20 @@ class FlaskAppTestCase(unittest.TestCase):
             'json_text': bulk_json
         }, follow_redirects=True)
         self.assertIn(b'Successfully bulk-imported 2 questions!', response.data)
-        print("[PASS] Step 13: Bulk JSON Import parsed and created multiple questions successfully")
+        # 14. Study Notes publishing & viewing
+        response = self.client.post('/admin/notes', data={
+            'title': 'Test Study Note - Dynamic Programming',
+            'category': 'DP',
+            'content': 'Memoization vs Tabulation notes content.'
+        }, follow_redirects=True)
+        self.assertIn(b'published successfully!', response.data)
+        print("[PASS] Step 14a: Admin published study note")
+
+        self.client.get('/logout')
+        self.client.post('/login', data={'username': 'student1', 'password': 'resetpass789'}, follow_redirects=True)
+        response = self.client.get('/notes')
+        self.assertIn(b'Dynamic Programming', response.data)
+        print("[PASS] Step 14b: Student accessed Study Notes repository successfully")
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.title }} | Study Notes{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+  <a href="{{ url_for('notes_index') }}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+    <i class="fa-solid fa-arrow-left"></i> Back to Study Notes
+  </a>
+</div>
+
+<div class="panel" style="max-width: 900px; margin: 0 auto; padding: 2.2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <span style="font-size: 0.85rem; font-weight: 700; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); padding: 0.35rem 0.75rem; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.3);">
+      <i class="fa-solid fa-folder-open"></i> {{ note.category }}
+    </span>
+    <span style="font-size: 0.85rem; color: var(--text-dim);">
+      <i class="fa-regular fa-calendar"></i> Published: {{ note.created_at.strftime('%b %d, %Y') }}
+    </span>
+  </div>
+
+  <h1 style="font-size: 2.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.35; letter-spacing: -0.5px;">
+    {{ note.title }}
+  </h1>
+
+  <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin-bottom: 1.75rem;">
+
+  <!-- Note Reading Content -->
+  <div class="note-content" style="color: var(--text-main); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; word-break: break-word;">
+{{ note.content }}
+  </div>
+
+  {% if note.attachment_filename %}
+    <div style="margin-top: 2.2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 0.75rem;">
+        <i class="fa-solid fa-paperclip"></i> Attached Study Material
+      </h3>
+      {% if note.attachment_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')) %}
+        <img src="{{ url_for('uploaded_note_file', filename=note.attachment_filename) }}" class="img-thumb" style="max-width: 100%; max-height: 450px; border-radius: 12px; border: 1px solid var(--border-subtle); cursor: zoom-in;" alt="Study Material">
+      {% else %}
+        <a href="{{ url_for('uploaded_note_file', filename=note.attachment_filename) }}" target="_blank" class="btn btn-secondary">
+          <i class="fa-solid fa-file-arrow-down"></i> Download Attached File ({{ note.attachment_filename }})
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

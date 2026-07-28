@@ -28,5 +28,6 @@ class Config:
         
     QUESTION_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'questions')
     SUBMISSION_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'submissions')
+    NOTE_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'notes')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max limit
