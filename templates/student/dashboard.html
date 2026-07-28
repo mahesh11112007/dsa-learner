@@ -71,6 +71,15 @@
                   <span style="font-size: 0.72rem; font-weight: 700; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); padding: 0.15rem 0.5rem; border-radius: 4px;">
                     {{ q.category }}
                   </span>
+                  {% if q.is_theory() %}
+                    <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.68rem;">
+                      📝 THEORY
+                    </span>
+                  {% else %}
+                    <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #a5f3fc; border: 1px solid rgba(6, 182, 212, 0.35); font-size: 0.68rem;">
+                      💻 CODE
+                    </span>
+                  {% endif %}
                   {% if q.is_new() %}
                     <span class="badge" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; font-weight: 800; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);">
                       ⚡ NEW

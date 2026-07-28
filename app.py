@@ -244,15 +244,16 @@ def admin_questions():
             max_marks = 10.0
             
         due_date_str = request.form.get('due_date', '').strip()
+        category = request.form.get('category', 'General').strip()
+        question_type = request.form.get('question_type', 'code').strip()
+        solution_hint = request.form.get('solution_hint', '').strip()
+        
         due_date = None
         if due_date_str:
             try:
                 due_date = datetime.strptime(due_date_str, '%Y-%m-%dT%H:%M')
             except ValueError:
                 pass
-
-        category = request.form.get('category', 'General').strip()
-        solution_hint = request.form.get('solution_hint', '').strip()
 
         file = request.files.get('image')
         image_filename = save_file(file, app.config['QUESTION_UPLOAD_FOLDER'])
@@ -267,6 +268,7 @@ def admin_questions():
                 max_marks=max_marks,
                 due_date=due_date,
                 category=category,
+                question_type=question_type,
                 solution_hint=solution_hint,
                 created_by_id=current_user.id
             )
@@ -324,6 +326,7 @@ def bulk_import_questions():
                 continue
                 
             category = str(item.get('category', 'General')).strip()
+            question_type = str(item.get('question_type') or item.get('type') or 'code').strip()
             try:
                 max_marks = float(item.get('max_marks', 10.0))
             except (ValueError, TypeError):
@@ -336,6 +339,7 @@ def bulk_import_questions():
                 description=description,
                 max_marks=max_marks,
                 category=category,
+                question_type=question_type,
                 solution_hint=solution_hint,
                 created_by_id=current_user.id
             )

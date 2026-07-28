@@ -39,6 +39,7 @@ class Question(db.Model):
     max_marks = db.Column(db.Float, nullable=False, default=10.0)
     due_date = db.Column(db.DateTime, nullable=True)
     category = db.Column(db.String(50), default='General')
+    question_type = db.Column(db.String(20), default='code')  # 'code' or 'theory'
     solution_hint = db.Column(db.Text, nullable=True)
     created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -54,6 +55,12 @@ class Question(db.Model):
         if self.created_at:
             return (datetime.utcnow() - self.created_at).total_seconds() < 3 * 24 * 3600
         return False
+
+    def is_theory(self):
+        if hasattr(self, 'question_type') and self.question_type == 'theory':
+            return True
+        cat_lower = (self.category or '').lower()
+        return 'theory' in cat_lower or 'concept' in cat_lower or 'explain' in cat_lower
 
     def __repr__(self):
         return f"<Question {self.title}>"

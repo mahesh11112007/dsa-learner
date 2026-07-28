@@ -373,8 +373,8 @@
       });
     }
 
-    // Initialize mode
-    setSubmissionMode('code');
+    // Initialize mode based on question type (theory vs code)
+    setSubmissionMode("{{ 'theory' if question.is_theory() else 'code' }}");
   });
 </script>
 {% endblock %}
