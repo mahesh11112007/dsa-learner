@@ -131,8 +131,9 @@
     }
 
     th, td {
-      padding: 0.45rem 0.65rem;
+      padding: 0.45rem 0.6rem;
       text-align: left;
+      vertical-align: top !important;
       border-bottom: 1px solid var(--border);
       word-wrap: break-word;
       overflow-wrap: break-word;
@@ -283,18 +284,18 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 28%;">Question Title</th>
-                <th style="width: 12%;">Max Marks</th>
-                <th style="width: 14%;">Awarded</th>
-                <th style="width: 13%;">Status</th>
-                <th style="width: 15%;">Date</th>
-                <th style="width: 18%;">Feedback</th>
+                <th style="width: 22%;">Question Title</th>
+                <th style="width: 10%;">Max Marks</th>
+                <th style="width: 10%;">Awarded</th>
+                <th style="width: 10%;">Status</th>
+                <th style="width: 12%;">Date</th>
+                <th style="width: 36%;">Teacher Feedback</th>
               </tr>
             </thead>
             <tbody>
               {% for sub in report.submissions %}
                 <tr>
-                  <td><strong>{{ sub.question.title }}</strong></td>
+                  <td><strong style="color: #0f172a;">{{ sub.question.title }}</strong></td>
                   <td>{{ sub.question.max_marks }} pts</td>
                   <td>
                     {% if sub.marks_awarded is not none %}
@@ -309,7 +310,7 @@
                     </span>
                   </td>
                   <td>{{ sub.submitted_at.strftime('%b %d, %Y') if sub.submitted_at else 'N/A' }}</td>
-                  <td style="color: #334155; font-style: italic;">{{ sub.feedback or 'No feedback provided' }}</td>
+                  <td style="color: #334155; font-size: 0.78rem; line-height: 1.35; white-space: pre-line;">{{ sub.feedback or 'No feedback provided' }}</td>
                 </tr>
               {% endfor %}
             </tbody>
