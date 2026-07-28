@@ -660,6 +660,71 @@ def delete_note(note_id):
     flash(f'Study Note "{note.title}" deleted.', 'success')
     return redirect(url_for('admin_notes'))
 
+@app.route('/admin/notes/bulk_import', methods=['POST'])
+@login_required
+@admin_required
+def bulk_import_notes():
+    json_text = request.form.get('json_text', '').strip()
+    json_file = request.files.get('json_file')
+    
+    raw_content = ""
+    if json_file and json_file.filename:
+        try:
+            raw_content = json_file.read().decode('utf-8')
+        except Exception as e:
+            flash(f'Error reading JSON file: {e}', 'danger')
+            return redirect(url_for('admin_notes'))
+    elif json_text:
+        raw_content = json_text
+        
+    if not raw_content:
+        flash('Please paste JSON text or upload a .json file.', 'warning')
+        return redirect(url_for('admin_notes'))
+        
+    try:
+        cleaned = raw_content.replace('```json', '').replace('```', '').strip()
+        data = json.loads(cleaned)
+        
+        notes_list = []
+        if isinstance(data, list):
+            notes_list = data
+        elif isinstance(data, dict):
+            notes_list = data.get('notes', data.get('data', [data]))
+            
+        if not notes_list or not isinstance(notes_list, list):
+            flash('No valid notes array found in JSON payload.', 'warning')
+            return redirect(url_for('admin_notes'))
+            
+        count = 0
+        for item in notes_list:
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get('title', '')).strip()
+            content = str(item.get('content', '')).strip()
+            if not title or not content:
+                continue
+                
+            category = str(item.get('category', 'General')).strip()
+            
+            note = StudyNote(
+                title=title,
+                content=content,
+                category=category,
+                created_by_id=current_user.id
+            )
+            db.session.add(note)
+            count += 1
+            
+        db.session.commit()
+        flash(f'Successfully bulk-imported {count} study notes!', 'success')
+    except json.JSONDecodeError as e:
+        flash(f'Invalid JSON format: {e}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Bulk import error: {e}', 'danger')
+        
+    return redirect(url_for('admin_notes'))
+
 # Upload File Serving Helpers
 @app.route('/uploads/questions/<filename>')
 @login_required

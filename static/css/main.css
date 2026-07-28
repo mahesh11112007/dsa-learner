@@ -661,3 +661,59 @@ footer {
     touch-action: manipulation;
   }
 }
+
+/* Markdown Rendered Notes Styles */
+.note-markdown-body h1,
+.note-markdown-body h2,
+.note-markdown-body h3,
+.note-markdown-body h4 {
+  color: var(--text-main);
+  font-weight: 800;
+  margin-top: 1.6rem;
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.4px;
+}
+.note-markdown-body h1 { font-size: 1.7rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.4rem; }
+.note-markdown-body h2 { font-size: 1.4rem; color: #a5b4fc; }
+.note-markdown-body h3 { font-size: 1.18rem; color: var(--accent-cyan); }
+
+.note-markdown-body p {
+  margin-bottom: 1.1rem;
+  line-height: 1.75;
+}
+
+.note-markdown-body ul,
+.note-markdown-body ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.note-markdown-body li {
+  margin-bottom: 0.4rem;
+}
+
+.note-markdown-body blockquote {
+  border-left: 4px solid var(--accent-indigo);
+  background: rgba(99, 102, 241, 0.08);
+  padding: 0.8rem 1.2rem;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin: 1.2rem 0;
+  color: #c7d2fe;
+}
+
+.note-markdown-body pre {
+  border-radius: var(--radius-md);
+  margin: 1.2rem 0 !important;
+}
+
+.note-markdown-body code {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9em;
+}
+
+.note-markdown-body p code {
+  background: rgba(255, 255, 255, 0.08);
+  color: #a5f3fc;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
