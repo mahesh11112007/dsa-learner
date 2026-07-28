@@ -9,9 +9,9 @@
   <style>
     :root {
       --primary: #4f46e5;
-      --border: #e2e8f0;
+      --border: #cbd5e1;
       --text: #0f172a;
-      --muted: #64748b;
+      --muted: #475569;
       --bg: #f8fafc;
     }
 
@@ -21,12 +21,14 @@
       padding: 0;
     }
 
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    html, body {
       background-color: var(--bg);
       color: var(--text);
-      padding: 2rem;
-      line-height: 1.5;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 1.5rem;
+      line-height: 1.4;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     .no-print {
@@ -37,7 +39,7 @@
       padding: 1rem 1.5rem;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       border: 1px solid var(--border);
     }
 
@@ -59,113 +61,141 @@
 
     .header-banner {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       border-bottom: 2px solid var(--primary);
-      padding-bottom: 1rem;
+      padding-bottom: 0.75rem;
     }
 
     .header-banner h1 {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       color: #1e1b4b;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
     }
 
     .header-banner p {
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
 
     /* Student Table Block (One Table Per Student) */
     .student-block {
       background: white;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid var(--border);
-      padding: 1.35rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      page-break-inside: avoid;
+      padding: 1.1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
     }
 
     .student-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f1f5f9;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
+      background: #f1f5f9 !important;
+      padding: 0.65rem 0.9rem;
+      border-radius: 6px;
+      margin-bottom: 0.85rem;
       border-left: 4px solid var(--primary);
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     .student-name {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
-      color: #1e293b;
+      color: #0f172a;
     }
 
     .student-meta {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--muted);
     }
 
     .score-badge {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 800;
-      color: #047857;
-      background: #d1fae5;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
+      color: #047857 !important;
+      background: #d1fae5 !important;
+      padding: 0.25rem 0.75rem;
+      border-radius: 16px;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
+      table-layout: fixed;
     }
 
     th, td {
-      padding: 0.65rem 0.85rem;
+      padding: 0.55rem 0.75rem;
       text-align: left;
       border-bottom: 1px solid var(--border);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     th {
-      background-color: #f8fafc;
-      color: #475569;
+      background-color: #f1f5f9 !important;
+      color: #334155 !important;
       font-weight: 700;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     tr:nth-child(even) td {
-      background-color: #fafafa;
+      background-color: #f8fafc !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     .badge-status {
-      padding: 0.2rem 0.5rem;
+      padding: 0.2rem 0.45rem;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
+      display: inline-block;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
-    .status-graded { background: #d1fae5; color: #047857; }
-    .status-submitted { background: #fef3c7; color: #b45309; }
+    .status-graded { background: #d1fae5 !important; color: #047857 !important; }
+    .status-submitted { background: #fef3c7 !important; color: #b45309 !important; }
 
     @media print {
-      body {
-        background: white;
-        padding: 0;
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       .no-print {
         display: none !important;
       }
       .student-block {
-        box-shadow: none;
-        border: 1px solid #cbd5e1;
-        margin-bottom: 1.5rem;
-        page-break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #94a3b8 !important;
+        margin-bottom: 1.25rem !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      th {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
       }
     }
   </style>
@@ -206,8 +236,8 @@
 
           <div style="display: flex; align-items: center; gap: 1rem;">
             <div style="text-align: right;">
-              <span style="font-size: 0.78rem; color: var(--muted); display: block;">Total Earned</span>
-              <strong style="font-size: 1.1rem; color: #1e293b;">{{ report.total_earned }} / {{ report.total_possible }} pts</strong>
+              <span style="font-size: 0.75rem; color: var(--muted); display: block;">Total Earned</span>
+              <strong style="font-size: 1.05rem; color: #0f172a;">{{ report.total_earned }} / {{ report.total_possible }} pts</strong>
             </div>
             <span class="score-badge">{{ report.pct }}%</span>
           </div>
@@ -217,12 +247,12 @@
           <table>
             <thead>
               <tr>
-                <th>Question Title</th>
-                <th>Max Marks</th>
-                <th>Marks Awarded</th>
-                <th>Status</th>
-                <th>Submitted Date</th>
-                <th>Teacher Feedback</th>
+                <th style="width: 28%;">Question Title</th>
+                <th style="width: 12%;">Max Marks</th>
+                <th style="width: 14%;">Awarded</th>
+                <th style="width: 13%;">Status</th>
+                <th style="width: 15%;">Date</th>
+                <th style="width: 18%;">Feedback</th>
               </tr>
             </thead>
             <tbody>
@@ -242,14 +272,14 @@
                       {{ sub.status }}
                     </span>
                   </td>
-                  <td>{{ sub.submitted_at.strftime('%b %d, %Y %H:%M') if sub.submitted_at else 'N/A' }}</td>
+                  <td>{{ sub.submitted_at.strftime('%b %d, %Y') if sub.submitted_at else 'N/A' }}</td>
                   <td style="color: #334155; font-style: italic;">{{ sub.feedback or 'No feedback provided' }}</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         {% else %}
-          <p style="color: var(--muted); font-size: 0.88rem; text-align: center; padding: 1rem;">No question submissions recorded for this student yet.</p>
+          <p style="color: var(--muted); font-size: 0.85rem; text-align: center; padding: 0.75rem;">No question submissions recorded for this student yet.</p>
         {% endif %}
       </div>
     {% endfor %}
@@ -262,7 +292,7 @@
     window.onload = function() {
       setTimeout(function() {
         window.print();
-      }, 500);
+      }, 400);
     };
   </script>
 
