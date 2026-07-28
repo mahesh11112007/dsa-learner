@@ -12,6 +12,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.utils import secure_filename
 
 from config import Config
+from sqlalchemy import text
 from database import db
 from models import User, Question, Submission, Notice, StudyNote
 
@@ -39,6 +40,12 @@ def ensure_db_initialized():
 
     try:
         db.create_all()
+        try:
+            db.session.execute(text("ALTER TABLE questions ADD COLUMN IF NOT EXISTS question_type VARCHAR(20) DEFAULT 'code';"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
         if not User.query.filter_by(role='admin').first():
             mahesh = User(username='mahesh', full_name='Mahesh', role='admin')
             mahesh.set_password('12341234')
