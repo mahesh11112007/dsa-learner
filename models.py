@@ -50,6 +50,11 @@ class Question(db.Model):
             return datetime.utcnow() > self.due_date
         return False
 
+    def is_new(self):
+        if self.created_at:
+            return (datetime.utcnow() - self.created_at).total_seconds() < 3 * 24 * 3600
+        return False
+
     def __repr__(self):
         return f"<Question {self.title}>"
 
@@ -100,6 +105,11 @@ class StudyNote(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     author = db.relationship('User', backref='notes_created', lazy=True)
+
+    def is_new(self):
+        if self.created_at:
+            return (datetime.utcnow() - self.created_at).total_seconds() < 3 * 24 * 3600
+        return False
 
     def __repr__(self):
         return f"<StudyNote {self.title}>"

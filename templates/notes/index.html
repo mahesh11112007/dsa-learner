@@ -42,11 +42,18 @@
       <div class="question-card" style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-            <span style="font-size: 0.75rem; font-weight: 700; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); padding: 0.25rem 0.6rem; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.25);">
-              <i class="fa-solid fa-folder-open"></i> {{ note.category }}
-            </span>
-            <span style="font-size: 0.8rem; color: var(--text-dim);">
-              <i class="fa-regular fa-clock"></i> {{ note.created_at.strftime('%b %d, %Y') }}
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 0.75rem; font-weight: 700; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); padding: 0.25rem 0.6rem; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.25);">
+                <i class="fa-solid fa-folder-open"></i> {{ note.category }}
+              </span>
+              {% if note.is_new() %}
+                <span class="badge" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; font-weight: 800; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 6px; box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);">
+                  ⚡ NEW
+                </span>
+              {% endif %}
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-dim);" title="Published Date">
+              <i class="fa-regular fa-calendar"></i> {{ note.created_at.strftime('%b %d, %Y') }}
             </span>
           </div>
 
