@@ -207,8 +207,8 @@ class FlaskAppTestCase(unittest.TestCase):
         self.client.post('/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=True)
         response = self.client.get('/admin/export_pdf')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Student Gradebook Report', response.data)
-        print("[PASS] Step 17: PDF Grade Report generated with individual student tables successfully")
+        self.assertIn(b'DSA Q&A; Grades Report', response.data)
+        print("[PASS] Step 17: PDF Grade Report generated in Record Key-Value format successfully")
 
 if __name__ == '__main__':
     unittest.main()
