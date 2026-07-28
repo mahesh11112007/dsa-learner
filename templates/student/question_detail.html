@@ -76,14 +76,25 @@
 
   </div>
 
-  <!-- Right Column: Interactive Code Compiler & Submission Form -->
+  <!-- Right Column: Interactive Compiler & Submission Form -->
   <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
     <div class="panel" style="background: rgba(15, 23, 42, 0.85); border-color: rgba(99, 102, 241, 0.3);">
+      
+      <!-- Submission Mode Selector Tabs -->
+      <div style="display: flex; background: rgba(7, 10, 18, 0.8); padding: 0.3rem; border-radius: 10px; margin-bottom: 1.25rem; border: 1px solid var(--border-subtle);">
+        <button type="button" id="tab_mode_code" class="btn btn-sm" style="flex: 1; font-weight: 700; background: var(--accent-indigo); color: white; border: none; border-radius: 8px;">
+          <i class="fa-solid fa-code"></i> 💻 Code Solution
+        </button>
+        <button type="button" id="tab_mode_theory" class="btn btn-sm" style="flex: 1; font-weight: 700; background: transparent; color: var(--text-muted); border: none; border-radius: 8px;">
+          <i class="fa-solid fa-pen-nib"></i> 📝 Theory / Text Explanation
+        </button>
+      </div>
+
       <div class="panel-header" style="margin-bottom: 1rem;">
-        <h2 class="panel-title"><i class="fa-solid fa-terminal" style="color: var(--accent-cyan);"></i> Interactive Code Compiler</h2>
+        <h2 id="section_title" class="panel-title"><i class="fa-solid fa-terminal" style="color: var(--accent-cyan);"></i> Interactive Code Compiler</h2>
         
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div id="compiler_lang_wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
           <label for="code_lang" style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Language:</label>
           <select id="code_lang" class="form-control" style="width: 140px; padding: 0.3rem 0.6rem; font-size: 0.82rem; font-weight: 600; background: rgba(7, 10, 18, 0.9); border-color: var(--accent-indigo);">
             <option value="cpp">C++ (GCC)</option>
@@ -99,7 +110,7 @@
         
         <div class="form-group">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <label for="answer_text" style="margin: 0;"><i class="fa-solid fa-code" style="color: var(--accent-indigo);"></i> Solution Code</label>
+            <label id="lbl_answer_text" for="answer_text" style="margin: 0;"><i class="fa-solid fa-code" style="color: var(--accent-indigo);"></i> Solution Code</label>
             <span id="execution_status_badge" class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.72rem;">
               ⚠️ Execution Required
             </span>
@@ -107,13 +118,13 @@
           <textarea id="answer_text" name="answer_text" class="form-control" placeholder="// Write solution code here..." style="min-height: 220px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; line-height: 1.5; background: #090d16; color: #a5b4fc;" required>{{ submission.answer_text if submission else '' }}</textarea>
         </div>
 
-        <!-- Custom Test Input (stdin) -->
-        <div class="form-group">
+        <!-- Custom Test Input (stdin) for Code Mode -->
+        <div id="compiler_stdin_wrapper" class="form-group">
           <label for="custom_stdin" style="font-size: 0.82rem; color: var(--text-muted);"><i class="fa-solid fa-keyboard"></i> Test Input (stdin - Optional)</label>
           <input type="text" id="custom_stdin" class="form-control" placeholder="e.g. 5\n1 2 3 4 5" style="font-family: monospace; font-size: 0.82rem; padding: 0.4rem 0.8rem; background: #090d16;">
         </div>
 
-        <!-- Run & Test Code Button -->
+        <!-- Run & Test Code Button for Code Mode -->
         <button type="button" id="btn_run_code" class="btn btn-secondary" style="width: 100%; margin-bottom: 1.25rem; font-weight: 700; background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(6, 182, 212, 0.25)); border-color: var(--accent-cyan); color: white;">
           <i class="fa-solid fa-play" style="color: var(--accent-emerald);"></i> ▶️ Run & Test Code
         </button>
@@ -146,17 +157,17 @@
           <img id="ans_preview" class="file-preview" style="display: none;" alt="New Upload Preview">
         </div>
 
-        <!-- Submission Controls with Mandatory Code Execution Guard -->
+        <!-- Submission Controls with Execution Guard -->
         {% if question.is_past_due() %}
           <div style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose); color: #fecdd3; padding: 0.95rem; border-radius: var(--radius-md); text-align: center; font-weight: 600;">
             <i class="fa-solid fa-lock"></i> The deadline for this question has passed. Submissions are closed.
           </div>
         {% elif not submission or submission.status == 'submitted' %}
           <div id="execution_warning_alert" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fde047; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; text-align: center; margin-bottom: 0.75rem;">
-            🔒 <strong>Execution Required:</strong> Click <strong>"▶️ Run & Test Code"</strong> and verify 0 errors before submitting.
+            🔒 <strong>Code Execution Guard:</strong> Click <strong>"▶️ Run & Test Code"</strong> and verify 0 errors before submitting code.
           </div>
           
-          <button type="submit" id="btn_submit_solution" class="btn btn-primary btn-lg" disabled style="width: 100%; opacity: 0.5; cursor: not-allowed;">
+          <button type="submit" id="btn_submit_solution" class="btn btn-primary btn-lg" style="width: 100%;">
             <i class="fa-solid fa-rocket"></i> {{ 'Update Answer' if submission else 'Submit Answer' }}
           </button>
         {% else %}
@@ -175,9 +186,15 @@
 {% block scripts %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    const tabCode = document.getElementById('tab_mode_code');
+    const tabTheory = document.getElementById('tab_mode_theory');
+    const sectionTitle = document.getElementById('section_title');
+    const compilerLangWrapper = document.getElementById('compiler_lang_wrapper');
+    const compilerStdinWrapper = document.getElementById('compiler_stdin_wrapper');
     const btnRun = document.getElementById('btn_run_code');
     const btnSubmit = document.getElementById('btn_submit_solution');
     const codeTextarea = document.getElementById('answer_text');
+    const lblAnswerText = document.getElementById('lbl_answer_text');
     const langSelect = document.getElementById('code_lang');
     const stdinInput = document.getElementById('custom_stdin');
     const termBox = document.getElementById('terminal_box');
@@ -185,24 +202,100 @@
     const termExitCode = document.getElementById('term_exit_code');
     const execBadge = document.getElementById('execution_status_badge');
     const execAlert = document.getElementById('execution_warning_alert');
-    
+    const fileInput = document.getElementById('ans_image');
+
+    let currentMode = 'code'; // 'code' or 'theory'
     let isExecutionVerified = false;
 
-    // Reset verification if student modifies code
+    function setSubmissionMode(mode) {
+      currentMode = mode;
+      if (mode === 'code') {
+        tabCode.style.background = 'var(--accent-indigo)';
+        tabCode.style.color = '#ffffff';
+        tabTheory.style.background = 'transparent';
+        tabTheory.style.color = 'var(--text-muted)';
+        
+        sectionTitle.innerHTML = '<i class="fa-solid fa-terminal" style="color: var(--accent-cyan);"></i> Interactive Code Compiler';
+        lblAnswerText.innerHTML = '<i class="fa-solid fa-code" style="color: var(--accent-indigo);"></i> Solution Code';
+        codeTextarea.placeholder = '// Write solution code here...';
+        
+        compilerLangWrapper.style.display = 'flex';
+        compilerStdinWrapper.style.display = 'block';
+        btnRun.style.display = 'block';
+        if (execBadge) execBadge.style.display = 'inline-block';
+        
+        // Lock submission until code is tested unless image uploaded
+        updateSubmitButtonState();
+      } else {
+        tabTheory.style.background = 'var(--accent-indigo)';
+        tabTheory.style.color = '#ffffff';
+        tabCode.style.background = 'transparent';
+        tabCode.style.color = 'var(--text-muted)';
+
+        sectionTitle.innerHTML = '<i class="fa-solid fa-pen-nib" style="color: var(--accent-cyan);"></i> Theory & Explanation Editor';
+        lblAnswerText.innerHTML = '<i class="fa-solid fa-file-pen" style="color: var(--accent-indigo);"></i> Conceptual Answer / Explanation';
+        codeTextarea.placeholder = 'Type your step-by-step theory explanation, complexity analysis, or conceptual answer here...';
+
+        compilerLangWrapper.style.display = 'none';
+        compilerStdinWrapper.style.display = 'none';
+        btnRun.style.display = 'none';
+        termBox.style.display = 'none';
+        if (execBadge) execBadge.style.display = 'none';
+        if (execAlert) execAlert.style.display = 'none';
+
+        // Unlock submission instantly in theory mode
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.style.opacity = '1';
+          btnSubmit.style.cursor = 'pointer';
+        }
+      }
+    }
+
+    function updateSubmitButtonState() {
+      if (currentMode === 'theory') {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.style.opacity = '1';
+          btnSubmit.style.cursor = 'pointer';
+        }
+        if (execAlert) execAlert.style.display = 'none';
+        return;
+      }
+
+      // In Code mode: unlock if code is execution-verified OR if file image attached
+      const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+      if (isExecutionVerified || hasFile) {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.style.opacity = '1';
+          btnSubmit.style.cursor = 'pointer';
+        }
+        if (execAlert) execAlert.style.display = 'none';
+      } else {
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.style.opacity = '0.5';
+          btnSubmit.style.cursor = 'not-allowed';
+        }
+        if (execAlert) execAlert.style.display = 'block';
+      }
+    }
+
+    if (tabCode) tabCode.addEventListener('click', () => setSubmissionMode('code'));
+    if (tabTheory) tabTheory.addEventListener('click', () => setSubmissionMode('theory'));
+    if (fileInput) fileInput.addEventListener('change', updateSubmitButtonState);
+
+    // Code textarea input event
     codeTextarea.addEventListener('input', () => {
-      isExecutionVerified = false;
-      if (btnSubmit) {
-        btnSubmit.disabled = true;
-        btnSubmit.style.opacity = '0.5';
-        btnSubmit.style.cursor = 'not-allowed';
-      }
-      if (execBadge) {
-        execBadge.style.background = 'rgba(245, 158, 11, 0.15)';
-        execBadge.style.color = '#fde047';
-        execBadge.innerHTML = '⚠️ Code Modified (Re-run Required)';
-      }
-      if (execAlert) {
-        execAlert.style.display = 'block';
+      if (currentMode === 'code') {
+        isExecutionVerified = false;
+        if (execBadge) {
+          execBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+          execBadge.style.color = '#fde047';
+          execBadge.innerHTML = '⚠️ Code Modified (Re-run Required)';
+        }
+        updateSubmitButtonState();
       }
     });
 
@@ -251,14 +344,7 @@
                 execBadge.innerHTML = '✓ Execution Verified (Success)';
               }
 
-              if (btnSubmit) {
-                btnSubmit.disabled = false;
-                btnSubmit.style.opacity = '1';
-                btnSubmit.style.cursor = 'pointer';
-              }
-              if (execAlert) {
-                execAlert.style.display = 'none';
-              }
+              updateSubmitButtonState();
             } else {
               isExecutionVerified = false;
               termOutput.style.color = '#fecdd3';
@@ -270,19 +356,25 @@
                 execBadge.style.color = '#fecdd3';
                 execBadge.innerHTML = '❌ Runtime / Compilation Error';
               }
+              updateSubmitButtonState();
             }
           } else {
             termOutput.style.color = '#fecdd3';
             termOutput.textContent = 'Error: ' + (data.error || 'Execution failed');
+            updateSubmitButtonState();
           }
         } catch (err) {
           btnRun.disabled = false;
           btnRun.innerHTML = '<i class="fa-solid fa-play" style="color: var(--accent-emerald);"></i> ▶️ Run & Test Code';
           termOutput.style.color = '#fecdd3';
           termOutput.textContent = 'Network / Server Error: ' + err.message;
+          updateSubmitButtonState();
         }
       });
     }
+
+    // Initialize mode
+    setSubmissionMode('code');
   });
 </script>
 {% endblock %}
