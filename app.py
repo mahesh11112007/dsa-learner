@@ -559,8 +559,13 @@ def export_csv():
 @admin_required
 def export_pdf():
     status_filter = request.args.get('status', 'all')
-    students = User.query.filter_by(role='student').order_by(User.full_name.asc()).all()
+    students = User.query.filter(User.role != 'admin').order_by(User.full_name.asc()).all()
+    
     student_reports = []
+    class_total_submissions = 0
+    class_graded_count = 0
+    class_total_earned = 0.0
+    class_total_possible = 0.0
     
     for student in students:
         all_student_subs = Submission.query.filter_by(student_id=student.id).order_by(Submission.submitted_at.desc()).all()
@@ -575,7 +580,12 @@ def export_pdf():
         graded_subs = [s for s in all_student_subs if s.marks_awarded is not None]
         total_earned = sum(s.marks_awarded for s in graded_subs)
         total_possible = sum(s.question.max_marks for s in graded_subs if s.question)
-        pct = (total_earned / total_possible * 100) if total_possible > 0 else 0
+        pct = (total_earned / total_possible * 100) if total_possible > 0 else 0.0
+        
+        class_total_submissions += len(all_student_subs)
+        class_graded_count += len(graded_subs)
+        class_total_earned += total_earned
+        class_total_possible += total_possible
         
         student_reports.append({
             'student': student,
@@ -587,7 +597,19 @@ def export_pdf():
             'pct': round(pct, 1)
         })
         
-    return render_template('admin/gradebook_pdf.html', student_reports=student_reports, status_filter=status_filter)
+    class_pct = round((class_total_earned / class_total_possible * 100), 1) if class_total_possible > 0 else 0.0
+    
+    return render_template(
+        'admin/gradebook_pdf.html',
+        student_reports=student_reports,
+        status_filter=status_filter,
+        total_students=len(students),
+        class_total_submissions=class_total_submissions,
+        class_graded_count=class_graded_count,
+        class_total_earned=round(class_total_earned, 1),
+        class_total_possible=round(class_total_possible, 1),
+        class_pct=class_pct
+    )
 
 @app.route('/student/questions/<int:question_id>', methods=['GET', 'POST'])
 @login_required

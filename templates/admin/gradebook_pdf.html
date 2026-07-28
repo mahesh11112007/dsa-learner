@@ -223,6 +223,26 @@
     <p>Comprehensive Performance Summary & Question Evaluations per Student</p>
   </div>
 
+  <!-- Class Overview Stats Grid -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; background: #ffffff !important; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+    <div style="text-align: center; border-right: 1px solid var(--border); padding-right: 0.5rem;">
+      <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; display: block;">Enrolled Students</span>
+      <strong style="font-size: 1.25rem; color: #1e1b4b;">{{ total_students }} Accounts</strong>
+    </div>
+    <div style="text-align: center; border-right: 1px solid var(--border); padding-right: 0.5rem;">
+      <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; display: block;">Total Submissions</span>
+      <strong style="font-size: 1.25rem; color: #0284c7;">{{ class_total_submissions }} Submissions</strong>
+    </div>
+    <div style="text-align: center; border-right: 1px solid var(--border); padding-right: 0.5rem;">
+      <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; display: block;">Evaluations Done</span>
+      <strong style="font-size: 1.25rem; color: #047857;">{{ class_graded_count }} Graded</strong>
+    </div>
+    <div style="text-align: center;">
+      <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; display: block;">Class Average %</span>
+      <strong style="font-size: 1.25rem; color: #7c3aed;">{{ class_pct }}% ({{ class_total_earned }} pts)</strong>
+    </div>
+  </div>
+
   {% if student_reports %}
     {% for report in student_reports %}
       <div class="student-block">
