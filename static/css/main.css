@@ -635,6 +635,8 @@ footer {
 
   .panel {
     padding: 1.15rem;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .panel-header {
@@ -643,16 +645,16 @@ footer {
     gap: 0.75rem;
   }
 
-  /* Force 1-column layouts for forms and split-screen items on mobile */
-  div[style*="grid-template-columns: 1.1fr 1.8fr"],
-  div[style*="grid-template-columns: 1.25fr 1fr"],
-  div[style*="grid-template-columns: 1fr 1.8fr"],
-  div[style*="grid-template-columns: 1fr 1fr"],
-  div[style*="grid-template-columns: 1fr 1fr 1.2fr"] {
+  /* Force 1-column layouts for all grid containers on mobile & tablets */
+  div[style*="grid-template-columns"] {
     grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .table-responsive {
+    display: block;
+    width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
