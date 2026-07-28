@@ -558,12 +558,21 @@ def export_csv():
 @login_required
 @admin_required
 def export_pdf():
-    students = User.query.filter_by(role='student').all()
+    status_filter = request.args.get('status', 'all')
+    students = User.query.filter_by(role='student').order_by(User.full_name.asc()).all()
     student_reports = []
     
     for student in students:
-        subs = Submission.query.filter_by(student_id=student.id).order_by(Submission.submitted_at.desc()).all()
-        graded_subs = [s for s in subs if s.marks_awarded is not None]
+        all_student_subs = Submission.query.filter_by(student_id=student.id).order_by(Submission.submitted_at.desc()).all()
+        
+        if status_filter == 'pending':
+            subs = [s for s in all_student_subs if s.status != 'graded']
+        elif status_filter == 'graded':
+            subs = [s for s in all_student_subs if s.status == 'graded']
+        else:
+            subs = all_student_subs
+            
+        graded_subs = [s for s in all_student_subs if s.marks_awarded is not None]
         total_earned = sum(s.marks_awarded for s in graded_subs)
         total_possible = sum(s.question.max_marks for s in graded_subs if s.question)
         pct = (total_earned / total_possible * 100) if total_possible > 0 else 0
@@ -571,12 +580,14 @@ def export_pdf():
         student_reports.append({
             'student': student,
             'submissions': subs,
+            'all_count': len(all_student_subs),
+            'graded_count': len(graded_subs),
             'total_earned': round(total_earned, 1),
             'total_possible': round(total_possible, 1),
             'pct': round(pct, 1)
         })
         
-    return render_template('admin/gradebook_pdf.html', student_reports=student_reports)
+    return render_template('admin/gradebook_pdf.html', student_reports=student_reports, status_filter=status_filter)
 
 @app.route('/student/questions/<int:question_id>', methods=['GET', 'POST'])
 @login_required

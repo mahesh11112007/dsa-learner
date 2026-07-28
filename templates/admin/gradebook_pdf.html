@@ -231,7 +231,12 @@
             <div class="student-name">
               <i class="fa-solid fa-user-graduate" style="color: var(--primary);"></i> {{ report.student.full_name }}
             </div>
-            <span class="student-meta">Username: @{{ report.student.username }} &bull; Total Submissions: {{ report.submissions|length }}</span>
+            <span class="student-meta">
+              Username: @{{ report.student.username }} &bull; 
+              Joined: {{ report.student.created_at.strftime('%b %d, %Y') if report.student.created_at else 'N/A' }} &bull; 
+              Total Submissions: {{ report.all_count }} &bull; 
+              Evaluated: {{ report.graded_count }}
+            </span>
           </div>
 
           <div style="display: flex; align-items: center; gap: 1rem;">
