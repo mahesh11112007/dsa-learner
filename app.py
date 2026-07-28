@@ -553,6 +553,31 @@ def export_csv():
         headers={'Content-Disposition': 'attachment; filename=dsa_qa_grades_report.csv'}
     )
 
+# PDF Grade Report Export (One Table Per Student)
+@app.route('/admin/export_pdf')
+@login_required
+@admin_required
+def export_pdf():
+    students = User.query.filter_by(role='student').all()
+    student_reports = []
+    
+    for student in students:
+        subs = Submission.query.filter_by(student_id=student.id).order_by(Submission.submitted_at.desc()).all()
+        graded_subs = [s for s in subs if s.marks_awarded is not None]
+        total_earned = sum(s.marks_awarded for s in graded_subs)
+        total_possible = sum(s.question.max_marks for s in graded_subs if s.question)
+        pct = (total_earned / total_possible * 100) if total_possible > 0 else 0
+        
+        student_reports.append({
+            'student': student,
+            'submissions': subs,
+            'total_earned': round(total_earned, 1),
+            'total_possible': round(total_possible, 1),
+            'pct': round(pct, 1)
+        })
+        
+    return render_template('admin/gradebook_pdf.html', student_reports=student_reports)
+
 @app.route('/student/questions/<int:question_id>', methods=['GET', 'POST'])
 @login_required
 def question_detail(question_id):

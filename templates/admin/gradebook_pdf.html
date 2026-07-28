@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Gradebook PDF Report | DSA Portal</title>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --bg: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+      line-height: 1.5;
+    }
+
+    .no-print {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+
+    .header-banner {
+      text-align: center;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 1rem;
+    }
+
+    .header-banner h1 {
+      font-size: 1.8rem;
+      color: #1e1b4b;
+      margin-bottom: 0.3rem;
+    }
+
+    .header-banner p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Student Table Block (One Table Per Student) */
+    .student-block {
+      background: white;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 1.35rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      page-break-inside: avoid;
+    }
+
+    .student-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f1f5f9;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .student-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .student-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .score-badge {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #047857;
+      background: #d1fae5;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #fafafa;
+    }
+
+    .badge-status {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-graded { background: #d1fae5; color: #047857; }
+    .status-submitted { background: #fef3c7; color: #b45309; }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .student-block {
+        box-shadow: none;
+        border: 1px solid #cbd5e1;
+        margin-bottom: 1.5rem;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Controls (Hidden when printing) -->
+  <div class="no-print">
+    <div>
+      <strong style="font-size: 1.1rem;">📄 Student Gradebook Report</strong>
+      <span style="display: block; font-size: 0.82rem; color: var(--muted);">Separate grade report tables generated per student.</span>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{{ url_for('admin_submissions') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i> Back to Submissions
+      </a>
+      <button onclick="window.print();" class="btn btn-primary">
+        <i class="fa-solid fa-print"></i> 🖨️ Print / Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="header-banner">
+    <h1>DSA QA & Evaluation Portal — Official Grade Report</h1>
+    <p>Comprehensive Performance Summary & Question Evaluations per Student</p>
+  </div>
+
+  {% if student_reports %}
+    {% for report in student_reports %}
+      <div class="student-block">
+        <div class="student-header">
+          <div>
+            <div class="student-name">
+              <i class="fa-solid fa-user-graduate" style="color: var(--primary);"></i> {{ report.student.full_name }}
+            </div>
+            <span class="student-meta">Username: @{{ report.student.username }} &bull; Total Submissions: {{ report.submissions|length }}</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="text-align: right;">
+              <span style="font-size: 0.78rem; color: var(--muted); display: block;">Total Earned</span>
+              <strong style="font-size: 1.1rem; color: #1e293b;">{{ report.total_earned }} / {{ report.total_possible }} pts</strong>
+            </div>
+            <span class="score-badge">{{ report.pct }}%</span>
+          </div>
+        </div>
+
+        {% if report.submissions %}
+          <table>
+            <thead>
+              <tr>
+                <th>Question Title</th>
+                <th>Max Marks</th>
+                <th>Marks Awarded</th>
+                <th>Status</th>
+                <th>Submitted Date</th>
+                <th>Teacher Feedback</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sub in report.submissions %}
+                <tr>
+                  <td><strong>{{ sub.question.title }}</strong></td>
+                  <td>{{ sub.question.max_marks }} pts</td>
+                  <td>
+                    {% if sub.marks_awarded is not none %}
+                      <strong style="color: #047857;">{{ sub.marks_awarded }}</strong>
+                    {% else %}
+                      <span style="color: var(--muted);">-</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="badge-status {{ 'status-graded' if sub.status == 'graded' else 'status-submitted' }}">
+                      {{ sub.status }}
+                    </span>
+                  </td>
+                  <td>{{ sub.submitted_at.strftime('%b %d, %Y %H:%M') if sub.submitted_at else 'N/A' }}</td>
+                  <td style="color: #334155; font-style: italic;">{{ sub.feedback or 'No feedback provided' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p style="color: var(--muted); font-size: 0.88rem; text-align: center; padding: 1rem;">No question submissions recorded for this student yet.</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p style="text-align: center; color: var(--muted); padding: 3rem;">No student reports available.</p>
+  {% endif %}
+
+  <script>
+    // Auto trigger print dialog when page loads
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    };
+  </script>
+
+</body>
+</html>
