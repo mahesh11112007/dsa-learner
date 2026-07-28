@@ -187,5 +187,20 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertIn(b'Dynamic Programming', response.data)
         print("[PASS] Step 14b: Student accessed Study Notes repository successfully")
 
+        # 15. Interactive Code Compiler execution
+        response = self.client.post('/run_code', json={
+            'language': 'python',
+            'code': 'print("Hello DSA Compiler")'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Hello DSA Compiler', response.data)
+        print("[PASS] Step 15: Interactive Code Compiler executed Python code successfully")
+
+        # 16. Class Leaderboard & Topic Mastery
+        response = self.client.get('/leaderboard')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Leaderboard', response.data)
+        print("[PASS] Step 16: Class Leaderboard & Topic Mastery loaded successfully")
+
 if __name__ == '__main__':
     unittest.main()

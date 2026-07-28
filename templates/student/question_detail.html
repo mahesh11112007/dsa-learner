@@ -3,39 +3,53 @@
 {% block title %}{{ question.title }} | Student Portal{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1.75rem;">
-  <a href="{{ url_for('student_dashboard') }}" style="color: var(--accent-cyan); text-decoration: none; font-size: 0.9rem; font-weight: 600;">
-    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-  </a>
-  <h1 style="font-size: 1.85rem; font-weight: 800; margin-top: 0.35rem; letter-spacing: -0.5px;">{{ question.title }}</h1>
+<div style="margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <a href="{{ url_for('student_dashboard') }}" style="color: var(--accent-cyan); text-decoration: none; font-size: 0.9rem; font-weight: 600;">
+      <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+    </a>
+    <h1 style="font-size: 1.85rem; font-weight: 800; margin-top: 0.35rem; letter-spacing: -0.5px;">{{ question.title }}</h1>
+  </div>
+  <div style="display: flex; gap: 0.5rem; align-items: center;">
+    <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.35); font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+      <i class="fa-solid fa-folder-open"></i> {{ question.category }}
+    </span>
+    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+      <i class="fa-solid fa-star"></i> Max Points: {{ question.max_marks }}
+    </span>
+  </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.75rem;">
+<!-- Main Split Screen Layout -->
+<div style="display: grid; grid-template-columns: 1fr 1.25fr; gap: 1.75rem;">
 
-  <!-- Left Column: Question Details & Attachment -->
-  <div class="panel">
-    <div class="panel-header">
-      <h2 class="panel-title"><i class="fa-solid fa-circle-question" style="color: #a5b4fc;"></i> Question Prompt</h2>
-      <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.35);">
-        <i class="fa-solid fa-star"></i> Max Points: {{ question.max_marks }}
-      </span>
+  <!-- Left Column: Question Prompt & Reference Attachments -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    
+    <!-- Question Prompt Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title"><i class="fa-solid fa-circle-question" style="color: #a5b4fc;"></i> Problem Description</h2>
+        {% if question.due_date %}
+          <span class="badge" style="background: {{ 'rgba(244, 63, 94, 0.2)' if question.is_past_due() else 'rgba(245, 158, 11, 0.2)' }}; color: {{ '#fecdd3' if question.is_past_due() else '#fde047' }};">
+            ⏰ {{ 'Closed' if question.is_past_due() else 'Due: ' + question.due_date.strftime('%b %d, %H:%M') }}
+          </span>
+        {% endif %}
+      </div>
+
+      <p style="color: var(--text-main); font-size: 0.98rem; white-space: pre-wrap; margin-bottom: 1.35rem; line-height: 1.6;">{{ question.description }}</p>
+
+      {% if question.image_filename %}
+        <div style="padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+          <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.4rem;">
+            <i class="fa-solid fa-image"></i> Problem Diagram Attachment (Click to zoom):
+          </span>
+          <img src="{{ url_for('uploaded_question_file', filename=question.image_filename) }}" class="img-thumb" alt="Question Image" style="max-height: 280px; width: auto;">
+        </div>
+      {% endif %}
     </div>
 
-    <p style="color: var(--text-main); font-size: 0.98rem; white-space: pre-wrap; margin-bottom: 1.35rem; line-height: 1.6;">{{ question.description }}</p>
-
-    {% if question.image_filename %}
-      <div style="padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
-        <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.4rem;">
-          <i class="fa-solid fa-image"></i> Problem Diagram Attachment (Click to zoom):
-        </span>
-        <img src="{{ url_for('uploaded_question_file', filename=question.image_filename) }}" class="img-thumb" alt="Question Image" style="max-height: 280px;">
-      </div>
-    {% endif %}
-  </div>
-
-  <!-- Right Column: Submission Form / Graded Results -->
-  <div>
-    <!-- If Graded, Show Grade Card -->
+    <!-- If Graded Result Available -->
     {% if submission and submission.status == 'graded' %}
       <div class="panel" style="border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.04); box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);">
         <div class="panel-header">
@@ -50,7 +64,7 @@
         </div>
 
         {% if submission.feedback %}
-          <div style="background: rgba(7, 10, 18, 0.8); border: 1px solid var(--border-subtle); padding: 1.1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+          <div style="background: rgba(7, 10, 18, 0.8); border: 1px solid var(--border-subtle); padding: 1.1rem; border-radius: var(--radius-md);">
             <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 700; display: block; margin-bottom: 0.4rem;">
               <i class="fa-solid fa-comment-dots"></i> Teacher Feedback:
             </span>
@@ -60,48 +74,89 @@
       </div>
     {% endif %}
 
-    <!-- Submission Form Panel -->
-    <div class="panel">
-      <div class="panel-header">
-        <h2 class="panel-title">
-          {% if submission %}
-            <i class="fa-solid fa-pen-to-square" style="color: var(--accent-cyan);"></i> {{ 'Update Your Submission' if submission.status == 'submitted' else 'Your Submitted Answer' }}
-          {% else %}
-            <i class="fa-solid fa-paper-plane" style="color: var(--accent-cyan);"></i> Submit Answer
-          {% endif %}
-        </h2>
+  </div>
+
+  <!-- Right Column: Interactive Code Compiler & Submission Form -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+    <div class="panel" style="background: rgba(15, 23, 42, 0.85); border-color: rgba(99, 102, 241, 0.3);">
+      <div class="panel-header" style="margin-bottom: 1rem;">
+        <h2 class="panel-title"><i class="fa-solid fa-terminal" style="color: var(--accent-cyan);"></i> Interactive Code Compiler</h2>
+        
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label for="code_lang" style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Language:</label>
+          <select id="code_lang" class="form-control" style="width: 140px; padding: 0.3rem 0.6rem; font-size: 0.82rem; font-weight: 600; background: rgba(7, 10, 18, 0.9); border-color: var(--accent-indigo);">
+            <option value="cpp">C++ (GCC)</option>
+            <option value="python">Python 3</option>
+            <option value="java">Java</option>
+            <option value="javascript">JavaScript (Node)</option>
+          </select>
+        </div>
       </div>
 
-      <form method="POST" action="{{ url_for('question_detail', question_id=question.id) }}" enctype="multipart/form-data">
+      <!-- Submission & Execution Form -->
+      <form id="submission_form" method="POST" action="{{ url_for('question_detail', question_id=question.id) }}" enctype="multipart/form-data">
+        
         <div class="form-group">
-          <label for="answer_text">Text / Code Solution</label>
-          <textarea id="answer_text" name="answer_text" class="form-control" placeholder="Write step-by-step code solution, algorithm logic, or explanation..." style="min-height: 170px; font-family: 'Fira Code', monospace;">{{ submission.answer_text if submission else '' }}</textarea>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <label for="answer_text" style="margin: 0;"><i class="fa-solid fa-code" style="color: var(--accent-indigo);"></i> Solution Code</label>
+            <span id="execution_status_badge" class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.72rem;">
+              ⚠️ Execution Required
+            </span>
+          </div>
+          <textarea id="answer_text" name="answer_text" class="form-control" placeholder="// Write solution code here..." style="min-height: 220px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; line-height: 1.5; background: #090d16; color: #a5b4fc;" required>{{ submission.answer_text if submission else '' }}</textarea>
         </div>
 
+        <!-- Custom Test Input (stdin) -->
+        <div class="form-group">
+          <label for="custom_stdin" style="font-size: 0.82rem; color: var(--text-muted);"><i class="fa-solid fa-keyboard"></i> Test Input (stdin - Optional)</label>
+          <input type="text" id="custom_stdin" class="form-control" placeholder="e.g. 5\n1 2 3 4 5" style="font-family: monospace; font-size: 0.82rem; padding: 0.4rem 0.8rem; background: #090d16;">
+        </div>
+
+        <!-- Run & Test Code Button -->
+        <button type="button" id="btn_run_code" class="btn btn-secondary" style="width: 100%; margin-bottom: 1.25rem; font-weight: 700; background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(6, 182, 212, 0.25)); border-color: var(--accent-cyan); color: white;">
+          <i class="fa-solid fa-play" style="color: var(--accent-emerald);"></i> ▶️ Run & Test Code
+        </button>
+
+        <!-- Output Terminal Window -->
+        <div id="terminal_box" style="display: none; background: #050811; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.4rem;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);"><i class="fa-solid fa-terminal"></i> Execution Output</span>
+            <span id="term_exit_code" class="badge" style="font-size: 0.7rem;">Exit Code: 0</span>
+          </div>
+          <pre id="term_output" style="white-space: pre-wrap; font-family: 'Fira Code', monospace; font-size: 0.82rem; color: #e2e8f0; margin: 0; max-height: 180px; overflow-y: auto;"></pre>
+        </div>
+
+        <!-- File / Diagram Attachment -->
         <div class="form-group">
           <label>Upload Solution Image / Diagram (Optional)</label>
           <div class="file-upload-box" onclick="document.getElementById('ans_image').click();">
-            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent-cyan); display: block; margin-bottom: 0.4rem;"></i>
-            <span style="font-size: 0.88rem; color: var(--text-muted);">Click to attach photo of handwritten work, flowchart, or diagram</span>
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: var(--accent-cyan); display: block; margin-bottom: 0.3rem;"></i>
+            <span style="font-size: 0.82rem; color: var(--text-muted);">Click to attach photo of handwritten work or diagram</span>
             <input type="file" id="ans_image" name="image" accept="image/*" data-preview="ans_preview">
           </div>
           
           {% if submission and submission.image_filename %}
             <div style="margin-top: 0.85rem;">
-              <span style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Currently Attached Image Solution:</span>
-              <img src="{{ url_for('uploaded_submission_file', filename=submission.image_filename) }}" class="img-thumb" alt="Your Answer Image" style="max-height: 180px;">
+              <span style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Currently Attached Diagram:</span>
+              <img src="{{ url_for('uploaded_submission_file', filename=submission.image_filename) }}" class="img-thumb" alt="Your Answer Image" style="max-height: 160px;">
             </div>
           {% endif %}
           
           <img id="ans_preview" class="file-preview" style="display: none;" alt="New Upload Preview">
         </div>
 
+        <!-- Submission Controls with Mandatory Code Execution Guard -->
         {% if question.is_past_due() %}
-          <div style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose); color: #fecdd3; padding: 0.95rem; border-radius: var(--radius-md); text-align: center; margin-top: 1.25rem; font-weight: 600;">
+          <div style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose); color: #fecdd3; padding: 0.95rem; border-radius: var(--radius-md); text-align: center; font-weight: 600;">
             <i class="fa-solid fa-lock"></i> The deadline for this question has passed. Submissions are closed.
           </div>
         {% elif not submission or submission.status == 'submitted' %}
-          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+          <div id="execution_warning_alert" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fde047; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; text-align: center; margin-bottom: 0.75rem;">
+            🔒 <strong>Execution Required:</strong> Click <strong>"▶️ Run & Test Code"</strong> and verify 0 errors before submitting.
+          </div>
+          
+          <button type="submit" id="btn_submit_solution" class="btn btn-primary btn-lg" disabled style="width: 100%; opacity: 0.5; cursor: not-allowed;">
             <i class="fa-solid fa-rocket"></i> {{ 'Update Answer' if submission else 'Submit Answer' }}
           </button>
         {% else %}
@@ -115,4 +170,119 @@
   </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnRun = document.getElementById('btn_run_code');
+    const btnSubmit = document.getElementById('btn_submit_solution');
+    const codeTextarea = document.getElementById('answer_text');
+    const langSelect = document.getElementById('code_lang');
+    const stdinInput = document.getElementById('custom_stdin');
+    const termBox = document.getElementById('terminal_box');
+    const termOutput = document.getElementById('term_output');
+    const termExitCode = document.getElementById('term_exit_code');
+    const execBadge = document.getElementById('execution_status_badge');
+    const execAlert = document.getElementById('execution_warning_alert');
+    
+    let isExecutionVerified = false;
+
+    // Reset verification if student modifies code
+    codeTextarea.addEventListener('input', () => {
+      isExecutionVerified = false;
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.style.opacity = '0.5';
+        btnSubmit.style.cursor = 'not-allowed';
+      }
+      if (execBadge) {
+        execBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+        execBadge.style.color = '#fde047';
+        execBadge.innerHTML = '⚠️ Code Modified (Re-run Required)';
+      }
+      if (execAlert) {
+        execAlert.style.display = 'block';
+      }
+    });
+
+    if (btnRun) {
+      btnRun.addEventListener('click', async () => {
+        const code = codeTextarea.value.trim();
+        const language = langSelect.value;
+        const stdin = stdinInput.value;
+
+        if (!code) {
+          alert('Please enter your code before running.');
+          return;
+        }
+
+        btnRun.disabled = true;
+        btnRun.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executing Code...';
+        termBox.style.display = 'block';
+        termOutput.style.color = '#a5b4fc';
+        termOutput.textContent = 'Compiling and executing code...';
+
+        try {
+          const res = await fetch('/run_code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ language, code, stdin })
+          });
+
+          const data = await res.json();
+          btnRun.disabled = false;
+          btnRun.innerHTML = '<i class="fa-solid fa-play" style="color: var(--accent-emerald);"></i> ▶️ Run & Test Code';
+
+          if (data.success) {
+            const outputText = data.output || (data.stdout + '\n' + data.stderr);
+            termOutput.textContent = outputText || '(No output returned)';
+            termExitCode.textContent = 'Exit Code: ' + data.exit_code;
+
+            if (data.exit_code === 0) {
+              isExecutionVerified = true;
+              termOutput.style.color = '#a7f3d0';
+              termExitCode.style.background = 'rgba(16, 185, 129, 0.2)';
+              termExitCode.style.color = '#a7f3d0';
+
+              if (execBadge) {
+                execBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+                execBadge.style.color = '#a7f3d0';
+                execBadge.innerHTML = '✓ Execution Verified (Success)';
+              }
+
+              if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.style.opacity = '1';
+                btnSubmit.style.cursor = 'pointer';
+              }
+              if (execAlert) {
+                execAlert.style.display = 'none';
+              }
+            } else {
+              isExecutionVerified = false;
+              termOutput.style.color = '#fecdd3';
+              termExitCode.style.background = 'rgba(244, 63, 94, 0.2)';
+              termExitCode.style.color = '#fecdd3';
+
+              if (execBadge) {
+                execBadge.style.background = 'rgba(244, 63, 94, 0.2)';
+                execBadge.style.color = '#fecdd3';
+                execBadge.innerHTML = '❌ Runtime / Compilation Error';
+              }
+            }
+          } else {
+            termOutput.style.color = '#fecdd3';
+            termOutput.textContent = 'Error: ' + (data.error || 'Execution failed');
+          }
+        } catch (err) {
+          btnRun.disabled = false;
+          btnRun.innerHTML = '<i class="fa-solid fa-play" style="color: var(--accent-emerald);"></i> ▶️ Run & Test Code';
+          termOutput.style.color = '#fecdd3';
+          termOutput.textContent = 'Network / Server Error: ' + err.message;
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}

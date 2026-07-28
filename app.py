@@ -2,6 +2,9 @@ import os
 import csv
 import io
 import json
+import sys
+import subprocess
+import urllib.request
 from functools import wraps
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, send_from_directory, Response
@@ -586,6 +589,140 @@ def question_detail(question_id):
         return redirect(url_for('student_dashboard'))
         
     return render_template('student/question_detail.html', question=question, submission=existing_submission)
+
+# Interactive Code Compiler Execution Route
+@app.route('/run_code', methods=['POST'])
+@login_required
+def run_code():
+    data = request.get_json(silent=True) or request.form
+    language = data.get('language', 'cpp').lower()
+    code = data.get('code', '').strip()
+    stdin = data.get('stdin', '')
+    
+    if not code:
+        return Response(json.dumps({'success': False, 'error': 'No code provided.'}), mimetype='application/json', status=400)
+        
+    lang_map = {
+        'c++': 'cpp',
+        'cpp': 'cpp',
+        'python': 'python',
+        'python3': 'python',
+        'py': 'python',
+        'java': 'java',
+        'javascript': 'javascript',
+        'js': 'javascript'
+    }
+    target_lang = lang_map.get(language, 'cpp')
+    
+    payload = {
+        "language": target_lang,
+        "version": "*",
+        "files": [{"content": code}],
+        "stdin": stdin
+    }
+    
+    try:
+        req = urllib.request.Request(
+            'https://emkc.org/api/v2/piston/execute',
+            data=json.dumps(payload).encode('utf-8'),
+            headers={'Content-Type': 'application/json', 'User-Agent': 'DSA-QA-Portal'},
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            res_data = json.loads(response.read().decode('utf-8'))
+            run_info = res_data.get('run', {})
+            stdout = run_info.get('stdout', '')
+            stderr = run_info.get('stderr', '')
+            output = run_info.get('output', '')
+            exit_code = run_info.get('code', 0)
+            
+            return Response(json.dumps({
+                'success': True,
+                'exit_code': exit_code,
+                'stdout': stdout,
+                'stderr': stderr,
+                'output': output
+            }), mimetype='application/json')
+    except Exception as net_err:
+        if target_lang == 'python':
+            try:
+                proc = subprocess.run(
+                    [sys.executable, '-c', code],
+                    input=stdin,
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                return Response(json.dumps({
+                    'success': True,
+                    'exit_code': proc.returncode,
+                    'stdout': proc.stdout,
+                    'stderr': proc.stderr,
+                    'output': proc.stdout + (proc.stderr if proc.stderr else '')
+                }), mimetype='application/json')
+            except Exception as py_err:
+                return Response(json.dumps({
+                    'success': False,
+                    'error': f'Execution error: {py_err}'
+                }), mimetype='application/json', status=500)
+                
+        return Response(json.dumps({
+            'success': False,
+            'error': f'Code execution service error: {net_err}'
+        }), mimetype='application/json', status=500)
+
+# Class Leaderboard & Topic Mastery Route
+@app.route('/leaderboard')
+@login_required
+def leaderboard():
+    students = User.query.filter_by(role='student').all()
+    
+    student_stats = []
+    for student in students:
+        subs = Submission.query.filter_by(student_id=student.id).all()
+        graded_subs = [s for s in subs if s.marks_awarded is not None]
+        
+        total_earned = sum(s.marks_awarded for s in graded_subs)
+        total_possible = sum(s.question.max_marks for s in graded_subs if s.question)
+        pct = (total_earned / total_possible * 100) if total_possible > 0 else 0
+        
+        student_stats.append({
+            'user': student,
+            'total_earned': round(total_earned, 1),
+            'total_possible': round(total_possible, 1),
+            'pct': round(pct, 1),
+            'completed_count': len(graded_subs),
+            'total_submissions': len(subs)
+        })
+        
+    student_stats.sort(key=lambda x: (x['total_earned'], x['pct']), reverse=True)
+    
+    questions = Question.query.all()
+    categories = {}
+    for q in questions:
+        cat = q.category or 'General'
+        if cat not in categories:
+            categories[cat] = {'total_q': 0, 'total_points': 0, 'earned_points': 0}
+        categories[cat]['total_q'] += 1
+        categories[cat]['total_points'] += q.max_marks
+        
+        if not current_user.is_admin():
+            sub = Submission.query.filter_by(question_id=q.id, student_id=current_user.id).first()
+            if sub and sub.marks_awarded is not None:
+                categories[cat]['earned_points'] += sub.marks_awarded
+                
+    topic_mastery = []
+    for cat_name, stats in categories.items():
+        mastery_pct = (stats['earned_points'] / stats['total_points'] * 100) if stats['total_points'] > 0 else 0
+        topic_mastery.append({
+            'category': cat_name,
+            'total_q': stats['total_q'],
+            'total_points': round(stats['total_points'], 1),
+            'earned_points': round(stats['earned_points'], 1),
+            'pct': round(mastery_pct, 1)
+        })
+        
+    return render_template('leaderboard.html', student_stats=student_stats, topic_mastery=topic_mastery)
 
 @app.route('/student/submissions')
 @login_required
