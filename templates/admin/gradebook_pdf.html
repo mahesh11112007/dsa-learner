@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,8 +48,15 @@
       gap: 0.4rem;
     }
 
-    .btn-primary { background: #4f46e5; color: white; }
-    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-primary {
+      background: #4f46e5;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
 
     .report-title {
       text-align: center;
@@ -108,15 +116,18 @@
         size: A4 portrait;
         margin: 12mm;
       }
+
       body {
         padding: 0 !important;
         margin: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
       }
+
       .no-print {
         display: none !important;
       }
+
       .record-block {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -125,13 +136,15 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Top Controls (Hidden when printing) -->
   <div class="no-print">
     <div>
       <strong style="font-size: 1.05rem;">📄 DSA Q&A; Grades Report</strong>
-      <span style="display: block; font-size: 0.8rem; color: #64748b;">Record-by-record detailed key-value grade report.</span>
+      <span style="display: block; font-size: 0.8rem; color: #64748b;">Record-by-record detailed key-value grade
+        report.</span>
     </div>
     <div style="display: flex; gap: 0.75rem;">
       <a href="{{ url_for('admin_submissions') }}" class="btn btn-secondary">
@@ -146,61 +159,62 @@
   <h1 class="report-title">DSA Q&A; Grades Report</h1>
 
   {% if submissions %}
-    {% for sub in submissions %}
-      <div class="record-block">
-        <h2 class="record-header">Record {{ loop.index }}</h2>
-        <table class="record-table">
-          <tr>
-            <td class="label-col">Student Username</td>
-            <td class="value-col">{{ sub.student.username }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Student Name</td>
-            <td class="value-col">{{ sub.student.full_name }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Question Title</td>
-            <td class="value-col">{{ sub.question.title }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Max Marks</td>
-            <td class="value-col">{{ sub.question.max_marks }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Marks Awarded</td>
-            <td class="value-col">{{ sub.marks_awarded if sub.marks_awarded is not none else 'N/A' }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Status</td>
-            <td class="value-col">{{ sub.status }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Submitted At</td>
-            <td class="value-col">{{ sub.submitted_at.strftime('%Y-%m-%d %H:%M:%S') if sub.submitted_at else 'N/A' }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Graded At</td>
-            <td class="value-col">{{ sub.graded_at.strftime('%Y-%m-%d %H:%M:%S') if sub.graded_at else 'N/A' }}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Teacher Feedback</td>
-            <td class="value-col">{{ sub.feedback or 'No feedback provided' }}</td>
-          </tr>
-        </table>
-      </div>
-    {% endfor %}
+  {% for sub in submissions %}
+  <div class="record-block">
+    <h2 class="record-header">Record {{ loop.index }}</h2>
+    <table class="record-table">
+      <tr>
+        <td class="label-col">Student Username</td>
+        <td class="value-col">{{ sub.student.username }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Student Name</td>
+        <td class="value-col">{{ sub.student.full_name }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Question Title</td>
+        <td class="value-col">{{ sub.question.title }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Max Marks</td>
+        <td class="value-col">{{ sub.question.max_marks }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Marks Awarded</td>
+        <td class="value-col">{{ sub.marks_awarded if sub.marks_awarded is not none else 'N/A' }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Status</td>
+        <td class="value-col">{{ sub.status }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Submitted At</td>
+        <td class="value-col">{{ sub.submitted_at.strftime('%Y-%m-%d %H:%M:%S') if sub.submitted_at else 'N/A' }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Graded At</td>
+        <td class="value-col">{{ sub.graded_at.strftime('%Y-%m-%d %H:%M:%S') if sub.graded_at else 'N/A' }}</td>
+      </tr>
+      <tr>
+        <td class="label-col">Feedback</td>
+        <td class="value-col">{{ sub.feedback or 'No feedback provided' }}</td>
+      </tr>
+    </table>
+  </div>
+  {% endfor %}
   {% else %}
-    <p style="text-align: center; color: #6b7280; padding: 3rem;">No grade records available.</p>
+  <p style="text-align: center; color: #6b7280; padding: 3rem;">No grade records available.</p>
   {% endif %}
 
   <script>
     // Trigger print dialog after layout settles
-    window.onload = function() {
-      setTimeout(function() {
+    window.onload = function () {
+      setTimeout(function () {
         window.print();
       }, 300);
     };
   </script>
 
 </body>
+
 </html>
