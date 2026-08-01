@@ -219,8 +219,46 @@ STATS GRID
 }
 
 /* =========================
-PANELS
+PANELS & TABS
 ========================= */
+.dashboard-tabs-bar{
+  display:flex;
+  gap:.6rem;
+  margin-bottom:1.75rem;
+  border-bottom:1px solid var(--border);
+  padding-bottom:.6rem;
+  flex-wrap:wrap;
+}
+
+.tab-btn{
+  padding:.6rem 1.25rem;
+  border-radius:var(--r-md);
+  font-weight:600;
+  font-size:.9rem;
+  background:rgba(255,255,255,0.04);
+  color:var(--muted);
+  border:1px solid var(--border);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  transition:all .2s ease;
+  touch-action:manipulation;
+}
+
+.tab-btn:hover{
+  background:rgba(125,60,255,0.15);
+  color:#fff;
+  border-color:var(--border-glow);
+}
+
+.tab-btn.active{
+  background:var(--grad);
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 4px 15px rgba(125,60,255,0.35);
+}
+
 .panel{
   background:rgba(17,21,29,.72);
   border:1px solid var(--border);
