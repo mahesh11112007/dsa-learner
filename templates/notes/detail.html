@@ -74,20 +74,23 @@
     if (rawContentEl && renderedContentEl && typeof marked !== 'undefined') {
       let rawText = rawContentEl.value;
 
-      // Normalize literal '\n' escaped text to real newlines
+      // 1. Normalize literal '\n' escaped text to real newlines
       rawText = rawText.replace(/\\n/g, '\n');
 
-      // Configure Marked.js for clean GFM parsing
+      // 2. Fix broken or unclosed code blocks (e.g. missing opening ``` before 'python' or 'class Node:')
+      rawText = fixBrokenCodeBlocks(rawText);
+
+      // 3. Configure Marked.js for clean GFM parsing
       if (typeof marked.use === 'function') {
         marked.use({ breaks: true, gfm: true });
       } else if (typeof marked.setOptions === 'function') {
         marked.setOptions({ breaks: true, gfm: true });
       }
 
-      // Render Markdown HTML
+      // 4. Render Markdown HTML
       renderedContentEl.innerHTML = marked.parse(rawText);
 
-      // Auto-wrap all Markdown tables in a responsive horizontal scrolling container
+      // 5. Auto-wrap all Markdown tables in a responsive horizontal scrolling container
       renderedContentEl.querySelectorAll('table').forEach(tbl => {
         if (!tbl.parentElement || !tbl.parentElement.classList.contains('table-wrapper')) {
           const wrapper = document.createElement('div');
@@ -97,7 +100,7 @@
         }
       });
 
-      // Convert explicit ```mermaid code blocks into <div class="mermaid">
+      // 6. Convert explicit ```mermaid code blocks into <div class="mermaid">
       renderedContentEl.querySelectorAll('pre code.language-mermaid, pre code.language-flowchart').forEach(codeBlock => {
         const parentPre = codeBlock.parentElement;
         const mermaidDiv = document.createElement('div');
@@ -107,7 +110,7 @@
         parentPre.replaceWith(mermaidDiv);
       });
 
-      // Render Mermaid Flowcharts
+      // 7. Render Mermaid Flowcharts
       if (typeof mermaid !== 'undefined') {
         try {
           mermaid.initialize({
@@ -131,7 +134,7 @@
         }
       }
 
-      // Format GitHub Alert Callouts (> [!NOTE], > [!TIP], > [!WARNING])
+      // 8. Format GitHub Alert Callouts (> [!NOTE], > [!TIP], > [!WARNING])
       renderedContentEl.querySelectorAll('blockquote').forEach(bq => {
         const text = bq.innerHTML;
         if (text.includes('[!NOTE]') || text.includes('[!TIP]')) {
@@ -151,5 +154,55 @@
       }
     }
   });
+
+  // Repair & unify code blocks that were missing opening ``` or split into raw paragraph text
+  function fixBrokenCodeBlocks(text) {
+    const lines = text.split('\n');
+    let inFencedCode = false;
+    let fixedLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+      let trimmed = line.trim();
+
+      if (trimmed.startsWith('```')) {
+        inFencedCode = !inFencedCode;
+        fixedLines.push(line);
+        continue;
+      }
+
+      if (!inFencedCode) {
+        const lower = trimmed.toLowerCase();
+        // Standalone language name without ```
+        if (['python', 'py', 'javascript', 'js', 'cpp', 'c++', 'java'].includes(lower)) {
+          fixedLines.push('```' + lower);
+          inFencedCode = true;
+          continue;
+        }
+
+        // Code statements (class X:, def Y(), import Z, from A) without opening ```
+        if (trimmed.startsWith('class ') || trimmed.startsWith('def ') || trimmed.startsWith('import ') || trimmed.startsWith('from ')) {
+          fixedLines.push('```python');
+          fixedLines.push(line);
+          inFencedCode = true;
+          continue;
+        }
+      } else {
+        // Close code block if we reach a markdown header or callout
+        if (trimmed.startsWith('### ') || trimmed.startsWith('## ') || trimmed.startsWith('# ') || trimmed.startsWith('> [!')) {
+          fixedLines.push('```');
+          inFencedCode = false;
+        }
+      }
+
+      fixedLines.push(line);
+    }
+
+    if (inFencedCode) {
+      fixedLines.push('```');
+    }
+
+    return fixedLines.join('\n');
+  }
 </script>
 {% endblock %}
