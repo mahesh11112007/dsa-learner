@@ -23,14 +23,7 @@ app.url_map.strict_slashes = False
 # Initialize extensions
 db.init_app(app)
 
-_db_initialized = False
-
 def ensure_db_initialized():
-    global _db_initialized
-    if _db_initialized:
-        return
-    _db_initialized = True
-    
     try:
         os.makedirs(app.config['QUESTION_UPLOAD_FOLDER'], exist_ok=True)
         os.makedirs(app.config['SUBMISSION_UPLOAD_FOLDER'], exist_ok=True)
@@ -59,6 +52,10 @@ def ensure_db_initialized():
             print("[INFO] Auto-seeded default admin users into database.")
     except Exception as e:
         print(f"[Warning] DB initialization note: {e}")
+
+# Immediately initialize database & default admin accounts on app startup
+with app.app_context():
+    ensure_db_initialized()
 
 _cleanup_counter = [0]
 
