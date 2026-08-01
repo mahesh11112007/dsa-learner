@@ -77,7 +77,7 @@
       // 1. Normalize literal '\n' escaped text to real newlines
       rawText = rawText.replace(/\\n/g, '\n');
 
-      // 2. Fix broken or unclosed code blocks & flowcharts (missing opening ``` before 'python', 'mermaid', 'graph TD')
+      // 2. Fix broken or unclosed code blocks (missing opening ``` before 'python', 'mermaid')
       rawText = fixBrokenCodeBlocks(rawText);
 
       // 3. Configure Marked.js for clean GFM parsing
@@ -100,23 +100,49 @@
         }
       });
 
-      // 6. Convert explicit ```mermaid code blocks into <div class="mermaid">
+      // 6. Convert explicit ```mermaid code blocks into <div class="mermaid"> with syntax cleaning
       renderedContentEl.querySelectorAll('pre code.language-mermaid, pre code.language-flowchart, pre.language-mermaid').forEach(codeBlock => {
         const parentPre = codeBlock.tagName === 'PRE' ? codeBlock : codeBlock.parentElement;
+        let codeText = codeBlock.textContent.trim();
+
+        // Clean up duplicate graph declarations if present
+        const lines = codeText.split('\n').filter(l => l.trim().length > 0);
+        if (lines.length > 0) {
+          let headerCount = 0;
+          const cleanLines = [];
+          lines.forEach(l => {
+            const t = l.trim().toLowerCase();
+            if (t.startsWith('graph ') || t.startsWith('flowchart ') || t === 'mermaid' || t === 'flowchart') {
+              headerCount++;
+              if (headerCount === 1) {
+                if (t === 'mermaid' || t === 'flowchart') {
+                  cleanLines.push('graph TD');
+                } else {
+                  cleanLines.push(l);
+                }
+              }
+            } else {
+              cleanLines.push(l);
+            }
+          });
+          codeText = cleanLines.join('\n');
+        }
+
         const mermaidDiv = document.createElement('div');
         mermaidDiv.className = 'mermaid';
         mermaidDiv.style.cssText = 'text-align:center;margin:1.5rem 0;background:rgba(9, 13, 22, 0.95);padding:1.25rem;border-radius:12px;border:1px solid rgba(125,60,255,0.3);overflow-x:auto;';
-        mermaidDiv.textContent = codeBlock.textContent.trim();
+        mermaidDiv.textContent = codeText;
         parentPre.replaceWith(mermaidDiv);
       });
 
-      // 7. Render Mermaid Flowcharts
+      // 7. Render Mermaid Flowcharts safely
       if (window.mermaid) {
         try {
           mermaid.initialize({
             startOnLoad: true,
             theme: 'dark',
             securityLevel: 'loose',
+            suppressErrorRendering: true,
             themeVariables: {
               darkMode: true,
               background: '#090d16',
@@ -179,13 +205,8 @@
         const lower = trimmed.toLowerCase();
         
         // Mermaid / Flowchart declaration without ```
-        if (lower === 'mermaid' || lower === 'flowchart' || lower.startsWith('graph ') || lower.startsWith('flowchart ')) {
+        if (lower === 'mermaid' || lower === 'flowchart') {
           fixedLines.push('```mermaid');
-          if (!lower.startsWith('graph ') && !lower.startsWith('flowchart ')) {
-            fixedLines.push('graph TD');
-          } else {
-            fixedLines.push(line);
-          }
           inFencedCode = true;
           continue;
         }
