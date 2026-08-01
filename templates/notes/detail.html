@@ -77,7 +77,7 @@
       // 1. Normalize literal '\n' escaped text to real newlines
       rawText = rawText.replace(/\\n/g, '\n');
 
-      // 2. Fix broken or unclosed code blocks (e.g. missing opening ``` before 'python' or 'class Node:')
+      // 2. Fix broken or unclosed code blocks & flowcharts (missing opening ``` before 'python', 'mermaid', 'graph TD')
       rawText = fixBrokenCodeBlocks(rawText);
 
       // 3. Configure Marked.js for clean GFM parsing
@@ -101,8 +101,8 @@
       });
 
       // 6. Convert explicit ```mermaid code blocks into <div class="mermaid">
-      renderedContentEl.querySelectorAll('pre code.language-mermaid, pre code.language-flowchart').forEach(codeBlock => {
-        const parentPre = codeBlock.parentElement;
+      renderedContentEl.querySelectorAll('pre code.language-mermaid, pre code.language-flowchart, pre.language-mermaid').forEach(codeBlock => {
+        const parentPre = codeBlock.tagName === 'PRE' ? codeBlock : codeBlock.parentElement;
         const mermaidDiv = document.createElement('div');
         mermaidDiv.className = 'mermaid';
         mermaidDiv.style.cssText = 'text-align:center;margin:1.5rem 0;background:rgba(9, 13, 22, 0.95);padding:1.25rem;border-radius:12px;border:1px solid rgba(125,60,255,0.3);overflow-x:auto;';
@@ -111,10 +111,10 @@
       });
 
       // 7. Render Mermaid Flowcharts
-      if (typeof mermaid !== 'undefined') {
+      if (window.mermaid) {
         try {
           mermaid.initialize({
-            startOnLoad: false,
+            startOnLoad: true,
             theme: 'dark',
             securityLevel: 'loose',
             themeVariables: {
@@ -128,7 +128,11 @@
               tertiaryColor: '#11151d'
             }
           });
-          mermaid.run({ querySelector: '.mermaid' });
+          if (typeof mermaid.run === 'function') {
+            mermaid.run({ querySelector: '.mermaid' });
+          } else if (typeof mermaid.init === 'function') {
+            mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+          }
         } catch (err) {
           console.warn('Mermaid rendering warning:', err);
         }
@@ -155,7 +159,7 @@
     }
   });
 
-  // Repair & unify code blocks that were missing opening ``` or split into raw paragraph text
+  // Repair & unify code blocks & mermaid flowcharts that were missing opening ```
   function fixBrokenCodeBlocks(text) {
     const lines = text.split('\n');
     let inFencedCode = false;
@@ -173,9 +177,22 @@
 
       if (!inFencedCode) {
         const lower = trimmed.toLowerCase();
+        
+        // Mermaid / Flowchart declaration without ```
+        if (lower === 'mermaid' || lower === 'flowchart' || lower.startsWith('graph ') || lower.startsWith('flowchart ')) {
+          fixedLines.push('```mermaid');
+          if (!lower.startsWith('graph ') && !lower.startsWith('flowchart ')) {
+            fixedLines.push('graph TD');
+          } else {
+            fixedLines.push(line);
+          }
+          inFencedCode = true;
+          continue;
+        }
+
         // Standalone language name without ```
-        if (['python', 'py', 'javascript', 'js', 'cpp', 'c++', 'java'].includes(lower)) {
-          fixedLines.push('```' + lower);
+        if (['python', 'py', 'javascript', 'js', 'cpp', 'c++', 'java', 'code'].includes(lower)) {
+          fixedLines.push('```' + (lower === 'code' ? 'python' : lower));
           inFencedCode = true;
           continue;
         }
