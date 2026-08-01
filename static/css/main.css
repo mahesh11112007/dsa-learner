@@ -413,19 +413,81 @@ ANIMATIONS
 /* =========================
 NOTES MARKDOWN
 ========================= */
-.note-markdown-body h1,.note-markdown-body h2,.note-markdown-body h3,.note-markdown-body h4{
-  color:var(--text);font-weight:800;margin-top:1.6rem;margin-bottom:.8rem;letter-spacing:-.4px;
+.note-markdown-body {
+  font-size: 0.92rem !important;
+  line-height: 1.65 !important;
+  color: #e2e8f0;
 }
-.note-markdown-body h1{font-size:1.7rem;border-bottom:1px solid var(--border);padding-bottom:.4rem;}
-.note-markdown-body h2{font-size:1.4rem;color:#c4b5fd;}
-.note-markdown-body h3{font-size:1.18rem;color:var(--cyan);}
-.note-markdown-body p{margin-bottom:1.1rem;line-height:1.75;}
-.note-markdown-body ul,.note-markdown-body ol{margin-left:1.5rem;margin-bottom:1.1rem;}
-.note-markdown-body li{margin-bottom:.4rem;}
-.note-markdown-body blockquote{border-left:4px solid rgba(125,60,255,.6);background:rgba(125,60,255,.08);padding:.8rem 1.2rem;border-radius:0 var(--r-md) var(--r-md) 0;margin:1.2rem 0;color:#c4b5fd;}
-.note-markdown-body pre{border-radius:var(--r-md);margin:1.2rem 0 !important;}
-.note-markdown-body code{font-family:'Fira Code','Consolas',monospace;font-size:.9em;}
-.note-markdown-body p code{background:rgba(255,255,255,.08);color:#a5f3fc;padding:.15rem .4rem;border-radius:4px;}
+.note-markdown-body h1,
+.note-markdown-body h2,
+.note-markdown-body h3,
+.note-markdown-body h4 {
+  color: var(--text);
+  font-weight: 700;
+  margin-top: 1.35rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.3px;
+  line-height: 1.35;
+}
+.note-markdown-body h1 {
+  font-size: 1.35rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.35rem;
+  color: #fff;
+}
+.note-markdown-body h2 {
+  font-size: 1.18rem;
+  color: #c4b5fd;
+}
+.note-markdown-body h3 {
+  font-size: 1.02rem;
+  color: var(--cyan);
+}
+.note-markdown-body h4 {
+  font-size: 0.92rem;
+  color: #fde047;
+}
+.note-markdown-body p {
+  margin-bottom: 0.9rem;
+  line-height: 1.65;
+  font-size: 0.92rem;
+}
+.note-markdown-body ul,
+.note-markdown-body ol {
+  margin-left: 1.35rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+}
+.note-markdown-body li {
+  margin-bottom: 0.35rem;
+  line-height: 1.55;
+}
+.note-markdown-body blockquote {
+  border-left: 3px solid rgba(125, 60, 255, 0.7);
+  background: rgba(125, 60, 255, 0.08);
+  padding: 0.65rem 1rem;
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin: 0.9rem 0;
+  color: #c4b5fd;
+  font-size: 0.88rem;
+}
+.note-markdown-body pre {
+  border-radius: var(--r-md);
+  margin: 0.9rem 0 !important;
+  font-size: 0.84rem !important;
+  padding: 0.85rem 1.1rem !important;
+}
+.note-markdown-body code {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.85em;
+}
+.note-markdown-body p code {
+  background: rgba(255, 255, 255, 0.08);
+  color: #a5f3fc;
+  padding: 0.12rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
 
 /* =========================
 PODIUM
