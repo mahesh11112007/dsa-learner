@@ -31,7 +31,7 @@
   <!-- Note Formatted Reading Content -->
   <div id="rendered-note-content" class="note-markdown-body" style="word-break: break-word;">
     <!-- Fallback if JS disabled -->
-    <pre style="white-space: pre; font-family: 'Fira Code', monospace;">{{ note.content }}</pre>
+    <pre style="white-space: pre-wrap; font-family: 'Fira Code', monospace;">{{ note.content }}</pre>
   </div>
 
   {% if note.attachment_filename %}
@@ -59,8 +59,35 @@
     const rawContentEl = document.getElementById('raw-note-content');
     const renderedContentEl = document.getElementById('rendered-note-content');
     if (rawContentEl && renderedContentEl && typeof marked !== 'undefined') {
-      const rawText = rawContentEl.value; // Textarea value preserves 100% exact newlines & formatting
+      let rawText = rawContentEl.value;
+
+      // Normalize literal '\n' escaped text to real newlines
+      rawText = rawText.replace(/\\n/g, '\n');
+
+      if (typeof marked.use === 'function') {
+        marked.use({ breaks: true, gfm: true });
+      } else if (typeof marked.setOptions === 'function') {
+        marked.setOptions({ breaks: true, gfm: true });
+      }
+
       renderedContentEl.innerHTML = marked.parse(rawText);
+
+      // Auto-detect and format any loose ASCII box diagrams or inline code text
+      renderedContentEl.querySelectorAll('p').forEach(p => {
+        const text = p.innerText || p.textContent;
+        if (text.includes('+---') || text.includes('| ') || text.includes('executing +') || text.includes('TOP \n') || text.includes('Plate ')) {
+          p.style.fontFamily = "'Fira Code', 'Consolas', monospace";
+          p.style.whiteSpace = "pre-wrap";
+          p.style.background = "rgba(9, 13, 22, 0.95)";
+          p.style.padding = "0.85rem 1.1rem";
+          p.style.borderRadius = "8px";
+          p.style.border = "1px solid var(--border)";
+          p.style.color = "#a5f3fc";
+          p.style.fontSize = "0.84rem";
+          p.style.overflowX = "auto";
+        }
+      });
+
       if (typeof Prism !== 'undefined') {
         Prism.highlightAllUnder(renderedContentEl);
       }
