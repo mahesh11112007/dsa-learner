@@ -531,34 +531,51 @@ NOTES MARKDOWN
   border: 1px solid rgba(125, 60, 255, 0.25);
 }
 
-/* Markdown Tables */
-.note-markdown-body table {
+/* Markdown Tables & Responsive Table Wrapper */
+.note-markdown-body .table-wrapper {
   width: 100% !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
   margin: 1.5rem 0 !important;
   border-radius: 10px !important;
-  overflow: hidden !important;
   border: 1px solid rgba(125, 60, 255, 0.3) !important;
   background: rgba(13, 16, 23, 0.95) !important;
 }
 
+.note-markdown-body table {
+  width: 100% !important;
+  min-width: 580px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
 .note-markdown-body th {
-  background: rgba(125, 60, 255, 0.2) !important;
+  background: rgba(125, 60, 255, 0.22) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
   font-size: 0.82rem !important;
-  padding: 0.8rem 1rem !important;
-  border-bottom: 1px solid rgba(125, 60, 255, 0.3) !important;
+  padding: 0.85rem 1.1rem !important;
+  border-bottom: 1px solid rgba(125, 60, 255, 0.35) !important;
   text-align: left !important;
+  white-space: nowrap !important;
 }
 
 .note-markdown-body td {
-  padding: 0.75rem 1rem !important;
+  padding: 0.8rem 1.1rem !important;
   font-size: 0.88rem !important;
   color: #e2e8f0 !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
   vertical-align: middle !important;
+  white-space: nowrap !important;
+}
+
+.note-markdown-body td:last-child,
+.note-markdown-body th:last-child {
+  white-space: normal !important;
+  min-width: 180px !important;
 }
 
 .note-markdown-body tr:last-child td {
@@ -566,7 +583,7 @@ NOTES MARKDOWN
 }
 
 .note-markdown-body tr:nth-child(even) td {
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: rgba(255, 255, 255, 0.025) !important;
 }
 
 /* Callout Boxes */

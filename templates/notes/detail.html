@@ -87,6 +87,16 @@
       // Render Markdown HTML
       renderedContentEl.innerHTML = marked.parse(rawText);
 
+      // Auto-wrap all Markdown tables in a responsive horizontal scrolling container
+      renderedContentEl.querySelectorAll('table').forEach(tbl => {
+        if (!tbl.parentElement || !tbl.parentElement.classList.contains('table-wrapper')) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'table-wrapper';
+          tbl.parentNode.insertBefore(wrapper, tbl);
+          wrapper.appendChild(tbl);
+        }
+      });
+
       // Convert explicit ```mermaid code blocks into <div class="mermaid">
       renderedContentEl.querySelectorAll('pre code.language-mermaid, pre code.language-flowchart').forEach(codeBlock => {
         const parentPre = codeBlock.parentElement;
