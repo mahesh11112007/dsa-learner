@@ -340,11 +340,14 @@ FILE UPLOAD
 .img-thumb:hover{transform:scale(1.02);border-color:var(--cyan);}
 
 /* =========================
-TABLES
+TABLES & RESPONSIVE SUBMISSIONS
 ========================= */
+.mobile-submissions-list { display: none; }
+.desktop-only-table { display: block; }
+
 .table-responsive{overflow-x:auto;border-radius:var(--r-md);-webkit-overflow-scrolling:touch;width:100%;}
 .table{width:100%;border-collapse:separate;border-spacing:0;min-width:500px;}
-.table th,.table td{padding:.85rem 1rem;text-align:left;border-bottom:1px solid var(--border);font-size:.88rem;}
+.table th,.table td{padding:.85rem 1rem;text-align:left;border-bottom:1px solid var(--border);font-size:.88rem;vertical-align:top;}
 .table th{background:rgba(17,21,29,.9);color:var(--muted);font-weight:700;text-transform:uppercase;font-size:.72rem;letter-spacing:.8px;white-space:nowrap;}
 .table tbody tr{transition:background .15s;}
 .table tbody tr:hover{background:rgba(125,60,255,.05);}
@@ -478,6 +481,8 @@ RESPONSIVE BREAKPOINTS
   .panel-header{flex-direction:column;align-items:flex-start;}
 
   div[style*="grid-template-columns"]{grid-template-columns:1fr !important;gap:1.25rem !important;}
+  .desktop-only-table { display: none !important; }
+  .mobile-submissions-list { display: flex !important; }
   .table-responsive{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .login-wrapper{margin:2rem auto;}
   .login-card{padding:1.75rem 1.25rem;border-radius:var(--r-lg);}

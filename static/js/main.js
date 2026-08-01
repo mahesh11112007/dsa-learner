@@ -67,10 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.05 });
 
   document.querySelectorAll('.stat-card,.panel').forEach(el => {
-    el.style.opacity = '0';
     observer.observe(el);
   });
 
