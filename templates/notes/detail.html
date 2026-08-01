@@ -120,6 +120,27 @@
         }
       }
 
+      // Detect programming code blocks (Python, JS, etc.) and style with dark code block boxes
+      renderedContentEl.querySelectorAll('pre').forEach(pre => {
+        const text = pre.textContent || pre.innerText;
+        const code = pre.querySelector('code');
+        const isCode = (code && (code.className.includes('language-') || code.className.includes('python'))) ||
+                       text.includes('def ') ||
+                       text.includes('print(') ||
+                       text.includes('return ') ||
+                       text.includes('import ') ||
+                       text.includes('class ') ||
+                       text.includes('function ') ||
+                       text.includes('const ');
+
+        if (isCode) {
+          pre.classList.add('code-block-wrapper');
+          if (code && !code.className.includes('language-')) {
+            code.classList.add('language-python');
+          }
+        }
+      });
+
       if (typeof Prism !== 'undefined') {
         Prism.highlightAllUnder(renderedContentEl);
       }

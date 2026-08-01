@@ -472,27 +472,56 @@ NOTES MARKDOWN
   font-size: 0.88rem;
 }
 .note-markdown-body pre {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  margin: 0.75rem 0 !important;
-  padding: 0.2rem 0 !important;
-  white-space: pre-wrap !important;
-  font-family: 'Fira Code', 'Consolas', monospace !important;
-  font-size: 0.9rem !important;
-  line-height: 1.65 !important;
-  color: #a5f3fc !important;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0.75rem 0;
+  padding: 0.2rem 0;
+  white-space: pre-wrap;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #a5f3fc;
 }
 .note-markdown-body pre code {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  white-space: pre-wrap !important;
+  background: transparent;
+  border: none;
+  padding: 0;
+  white-space: pre-wrap;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #a5f3fc;
+}
+
+/* Dedicated Code Blocks for Programming Languages (Python, JS, C++, Java, etc.) */
+.note-markdown-body pre.code-block-wrapper,
+.note-markdown-body pre[class*="language-"],
+.note-markdown-body pre:has(code[class*="language-"]) {
+  background: #090d16 !important;
+  border: 1px solid rgba(125, 60, 255, 0.35) !important;
+  border-radius: var(--r-md) !important;
+  padding: 1rem 1.25rem !important;
+  margin: 1.25rem 0 !important;
+  white-space: pre !important;
+  overflow-x: auto !important;
   font-family: 'Fira Code', 'Consolas', monospace !important;
-  font-size: 0.9rem !important;
-  line-height: 1.65 !important;
-  color: #a5f3fc !important;
+  font-size: 0.88rem !important;
+  line-height: 1.55 !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.note-markdown-body pre.code-block-wrapper code,
+.note-markdown-body pre[class*="language-"] code {
+  white-space: pre !important;
+  font-family: 'Fira Code', 'Consolas', monospace !important;
+  font-size: 0.88rem !important;
+  line-height: 1.55 !important;
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  padding: 0 !important;
 }
 .note-markdown-body code {
   font-family: 'Fira Code', 'Consolas', monospace;
