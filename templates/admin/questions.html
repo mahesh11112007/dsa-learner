@@ -144,21 +144,36 @@
             <p style="color: var(--text-muted); font-size: 0.93rem; white-space: pre-wrap; margin-bottom: 0.9rem;">{{ q.description }}</p>
 
             {% if q.image_filename %}
-              <div style="margin-bottom: 0.9rem; padding: 0.75rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; border: 1px solid var(--border-subtle);">
-                <span style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.3rem;">
-                  <i class="fa-solid fa-image"></i> Problem Diagram Attachment (Click to view full image):
+              <div style="margin-bottom:.9rem;padding:.85rem;background:rgba(125,60,255,.05);border-radius:12px;border:1px solid rgba(125,60,255,.2);">
+                <span style="font-size:.8rem;color:var(--cyan);font-weight:600;display:block;margin-bottom:.5rem;">
+                  <i class="fa-solid fa-image"></i> Problem Diagram (Click to zoom):
                 </span>
-                <img src="{{ url_for('uploaded_question_file', filename=q.image_filename) }}" class="img-thumb" alt="{{ q.title }}" style="max-height: 180px;">
+                <img src="{{ url_for('uploaded_question_file', filename=q.image_filename) }}"
+                     class="img-thumb" alt="{{ q.title }}"
+                     style="max-height:180px;"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div style="display:none;align-items:center;gap:.5rem;color:var(--dim);font-size:.85rem;padding:.6rem;border:1px dashed var(--border);border-radius:8px;">
+                  <i class="fa-solid fa-image-slash"></i> Image expired or unavailable
+                </div>
               </div>
             {% endif %}
 
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.85rem; border-top: 1px solid var(--border-subtle); font-size: 0.85rem; color: var(--text-dim);">
-              <span><i class="fa-solid fa-file-arrow-up"></i> Total Submissions: <strong style="color: var(--text-main);">{{ q.submissions|length }}</strong></span>
-              <form method="POST" action="{{ url_for('delete_question', question_id=q.id) }}" style="display: inline;" onsubmit="return confirm('Delete this question and all student submissions?');">
-                <button type="submit" class="btn btn-danger btn-sm">
-                  <i class="fa-solid fa-trash"></i> Delete Question
-                </button>
-              </form>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:.85rem;border-top:1px solid var(--border);font-size:.85rem;color:var(--dim);flex-wrap:wrap;gap:.5rem;">
+              <span><i class="fa-solid fa-file-arrow-up"></i> Total Submissions: <strong style="color:var(--text);">{{ q.submissions|length }}</strong></span>
+              <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <!-- Copy Question -->
+                <form method="POST" action="{{ url_for('copy_question', question_id=q.id) }}" style="display:inline;">
+                  <button type="submit" class="btn btn-success btn-sm" title="Duplicate this question">
+                    <i class="fa-solid fa-copy"></i> Copy
+                  </button>
+                </form>
+                <!-- Delete Question -->
+                <form method="POST" action="{{ url_for('delete_question', question_id=q.id) }}" style="display:inline;" onsubmit="return confirm('Delete this question and all student submissions?');">
+                  <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fa-solid fa-trash"></i> Delete
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
         {% endfor %}

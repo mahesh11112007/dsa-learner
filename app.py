@@ -60,9 +60,15 @@ def ensure_db_initialized():
     except Exception as e:
         print(f"[Warning] DB initialization note: {e}")
 
+_cleanup_counter = [0]
+
 @app.before_request
 def before_request():
     ensure_db_initialized()
+    # Run cleanup every ~50 requests to avoid overhead
+    _cleanup_counter[0] += 1
+    if _cleanup_counter[0] % 50 == 0:
+        cleanup_old_uploads()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -102,6 +108,22 @@ def save_file(file, target_folder):
         file.save(filepath)
         return unique_filename
     return None
+
+# Auto-cleanup: delete uploaded files older than 7 days
+def cleanup_old_uploads():
+    import time
+    max_age = 7 * 24 * 3600  # 7 days in seconds
+    for folder_key in ['QUESTION_UPLOAD_FOLDER', 'SUBMISSION_UPLOAD_FOLDER', 'NOTE_UPLOAD_FOLDER']:
+        folder = app.config.get(folder_key, '')
+        if not os.path.isdir(folder):
+            continue
+        for fname in os.listdir(folder):
+            fpath = os.path.join(folder, fname)
+            try:
+                if os.path.isfile(fpath) and (time.time() - os.path.getmtime(fpath)) > max_age:
+                    os.remove(fpath)
+            except Exception:
+                pass
 
 # ==================== MAIN ROUTES ====================
 
@@ -368,9 +390,37 @@ def bulk_import_questions():
 @admin_required
 def delete_question(question_id):
     question = Question.query.get_or_404(question_id)
+    # Remove attached image file if it exists
+    if question.image_filename:
+        img_path = os.path.join(app.config['QUESTION_UPLOAD_FOLDER'], question.image_filename)
+        try:
+            if os.path.isfile(img_path):
+                os.remove(img_path)
+        except Exception:
+            pass
     db.session.delete(question)
     db.session.commit()
     flash(f'Question "{question.title}" deleted.', 'success')
+    return redirect(url_for('admin_questions'))
+
+@app.route('/admin/questions/<int:question_id>/copy', methods=['POST'])
+@login_required
+@admin_required
+def copy_question(question_id):
+    q = Question.query.get_or_404(question_id)
+    new_q = Question(
+        title=f"{q.title} (Copy)",
+        description=q.description,
+        category=q.category,
+        question_type=getattr(q, 'question_type', 'code'),
+        max_marks=q.max_marks,
+        solution_hint=q.solution_hint,
+        image_filename=None,  # Don't copy the image file reference
+        due_date=None,
+    )
+    db.session.add(new_q)
+    db.session.commit()
+    flash(f'Question "{q.title}" duplicated successfully!', 'success')
     return redirect(url_for('admin_questions'))
 
 @app.route('/admin/submissions')

@@ -47,7 +47,12 @@
           <span style="font-size: 0.82rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.4rem;">
             <i class="fa-solid fa-image"></i> Problem Reference Diagram (Click to enlarge):
           </span>
-          <img src="{{ url_for('uploaded_question_file', filename=question.image_filename) }}" class="img-thumb" alt="Question Image" style="max-height: 220px;">
+          <img src="{{ url_for('uploaded_question_file', filename=question.image_filename) }}"
+               class="img-thumb" alt="Question Image" style="max-height:220px;"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div style="display:none;align-items:center;gap:.5rem;color:#64748b;font-size:.85rem;padding:.6rem;border:1px dashed rgba(255,255,255,.06);border-radius:8px;">
+            <i class="fa-solid fa-image-slash"></i> Image unavailable or expired
+          </div>
         </div>
       {% endif %}
     </div>
@@ -75,7 +80,12 @@
           <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.4rem;">
             <i class="fa-solid fa-file-image"></i> Student Solution Image / Diagram (Click to enlarge):
           </span>
-          <img src="{{ url_for('uploaded_submission_file', filename=submission.image_filename) }}" class="img-thumb" alt="Student Solution Image" style="max-height: 340px;">
+          <img src="{{ url_for('uploaded_submission_file', filename=submission.image_filename) }}"
+               class="img-thumb" alt="Student Solution Image" style="max-height:340px;"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div style="display:none;align-items:center;gap:.5rem;color:#64748b;font-size:.85rem;padding:.6rem;border:1px dashed rgba(255,255,255,.06);border-radius:8px;">
+            <i class="fa-solid fa-image-slash"></i> Student image unavailable or expired
+          </div>
         </div>
       {% endif %}
 
