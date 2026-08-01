@@ -3,25 +3,25 @@
 {% block title %}{{ note.title }} | Study Notes{% endblock %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto; padding-bottom: 3rem;">
+<div style="max-width: 880px; margin: 0 auto; padding-bottom: 3rem;">
 
-  <!-- Back Navigation & Meta Bar -->
+  <!-- Back Button & Meta Header -->
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
     <a href="{{ url_for('notes_index') }}" class="btn btn-secondary btn-sm">
       <i class="fa-solid fa-arrow-left"></i> Back to Study Notes
     </a>
     
     <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-      <span class="badge" style="background: rgba(125, 60, 255, 0.18); color: #c4b5fd; border: 1px solid rgba(125, 60, 255, 0.35); font-size: 0.78rem; padding: 0.3rem 0.75rem; border-radius: 20px;">
+      <span class="badge" style="background: rgba(125, 60, 255, 0.18); color: #c4b5fd; border: 1px solid rgba(125, 60, 255, 0.35); font-size: 0.8rem; padding: 0.3rem 0.75rem; border-radius: 20px;">
         <i class="fa-solid fa-folder-open"></i> {{ note.category }}
       </span>
       <span style="font-size: 0.8rem; color: var(--dim); background: rgba(255,255,255,0.04); padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid var(--border);">
-        <i class="fa-regular fa-calendar"></i> {{ note.created_at.strftime('%b %d, %Y') }}
+        <i class="fa-regular fa-calendar"></i> Published: {{ note.created_at.strftime('%b %d, %Y') }}
       </span>
     </div>
   </div>
 
-  <!-- Note Card Header & Main Container -->
+  <!-- Note Card Container -->
   <div class="panel" style="padding: 2.25rem; background: rgba(17, 21, 29, 0.85); border-color: rgba(125, 60, 255, 0.35); box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative; overflow: hidden;">
     
     <!-- Top Gradient Accent Line -->
@@ -74,33 +74,30 @@
     if (rawContentEl && renderedContentEl && typeof marked !== 'undefined') {
       let rawText = rawContentEl.value;
 
-      // 1. Normalize literal '\n' escaped text to real newlines
+      // Normalize literal '\n' escaped text to real newlines
       rawText = rawText.replace(/\\n/g, '\n');
 
-      // 2. Pre-process ASCII diagrams to Mermaid Flowcharts if needed
-      rawText = convertAsciiToMermaid(rawText);
-
-      // 3. Configure Marked.js options
+      // Configure Marked.js for clean GFM parsing
       if (typeof marked.use === 'function') {
-        marked.use({ breaks: false, gfm: true });
+        marked.use({ breaks: true, gfm: true });
       } else if (typeof marked.setOptions === 'function') {
-        marked.setOptions({ breaks: false, gfm: true });
+        marked.setOptions({ breaks: true, gfm: true });
       }
 
-      // 4. Render Markdown
+      // Render Markdown HTML
       renderedContentEl.innerHTML = marked.parse(rawText);
 
-      // 5. Transform Mermaid code blocks into <div class="mermaid">
+      // Convert explicit ```mermaid code blocks into <div class="mermaid">
       renderedContentEl.querySelectorAll('pre code.language-mermaid, pre code.language-flowchart').forEach(codeBlock => {
         const parentPre = codeBlock.parentElement;
         const mermaidDiv = document.createElement('div');
         mermaidDiv.className = 'mermaid';
-        mermaidDiv.style.cssText = 'text-align:center;margin:1.75rem 0;background:rgba(9, 13, 22, 0.95);padding:1.4rem;border-radius:14px;border:1px solid rgba(125,60,255,0.3);box-shadow:0 10px 30px rgba(0,0,0,0.5);overflow-x:auto;';
+        mermaidDiv.style.cssText = 'text-align:center;margin:1.5rem 0;background:rgba(9, 13, 22, 0.95);padding:1.25rem;border-radius:12px;border:1px solid rgba(125,60,255,0.3);overflow-x:auto;';
         mermaidDiv.textContent = codeBlock.textContent.trim();
         parentPre.replaceWith(mermaidDiv);
       });
 
-      // 6. Initialize & Run Mermaid
+      // Render Mermaid Flowcharts
       if (typeof mermaid !== 'undefined') {
         try {
           mermaid.initialize({
@@ -120,44 +117,16 @@
           });
           mermaid.run({ querySelector: '.mermaid' });
         } catch (err) {
-          console.warn('Mermaid execution warning:', err);
+          console.warn('Mermaid rendering warning:', err);
         }
       }
 
-      // 7. Format Code Blocks cleanly with Copy Header & Prism Syntax Highlighting
-      renderedContentEl.querySelectorAll('pre').forEach(pre => {
-        if (pre.closest('.mermaid')) return;
-        const code = pre.querySelector('code');
-        const text = pre.textContent || pre.innerText;
-
-        // Add code block container box if it's code
-        const isCodeBlock = (code && (code.className.includes('language-') || code.className.includes('python'))) ||
-                            text.includes('def ') || text.includes('print(') || text.includes('return ') ||
-                            text.includes('import ') || text.includes('class ') || text.includes('for ') || text.includes('while ');
-
-        if (isCodeBlock) {
-          pre.classList.add('code-block-wrapper');
-          if (code && !code.className.includes('language-')) {
-            code.classList.add('language-python');
-          }
-
-          // Add Top Bar with Copy Button
-          if (!pre.querySelector('.code-header-bar')) {
-            const lang = (code && code.className.match(/language-(\w+)/)) ? code.className.match(/language-(\w+)/)[1].toUpperCase() : 'CODE';
-            const headerBar = document.createElement('div');
-            headerBar.className = 'code-header-bar';
-            headerBar.innerHTML = `<span class="code-lang-tag"><i class="fa-solid fa-code"></i> ${lang}</span><button type="button" class="copy-code-btn" onclick="copyCodeBlock(this)"><i class="fa-regular fa-copy"></i> Copy</button>`;
-            pre.insertBefore(headerBar, pre.firstChild);
-          }
-        }
-      });
-
-      // 8. Style GitHub Alert Callouts (> [!NOTE], > [!TIP], > [!WARNING])
+      // Format GitHub Alert Callouts (> [!NOTE], > [!TIP], > [!WARNING])
       renderedContentEl.querySelectorAll('blockquote').forEach(bq => {
         const text = bq.innerHTML;
         if (text.includes('[!NOTE]') || text.includes('[!TIP]')) {
           bq.className = 'callout-box callout-info';
-          bq.innerHTML = text.replace(/\[!(NOTE|TIP)\]/g, '<strong>💡 TIP / NOTE:</strong>');
+          bq.innerHTML = text.replace(/\[!(NOTE|TIP)\]/g, '<strong>💡 NOTE:</strong>');
         } else if (text.includes('[!WARNING]') || text.includes('[!CAUTION]')) {
           bq.className = 'callout-box callout-warning';
           bq.innerHTML = text.replace(/\[!(WARNING|CAUTION)\]/g, '<strong>⚠️ WARNING:</strong>');
@@ -172,73 +141,5 @@
       }
     }
   });
-
-  // Copy code helper
-  function copyCodeBlock(btn) {
-    const pre = btn.closest('pre');
-    const code = pre.querySelector('code') || pre;
-    const text = code.innerText || code.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      btn.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> Copied!';
-      setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy'; }, 2000);
-    });
-  }
-
-  // Convert loose ASCII box structures (+---+ and | |) into Mermaid Flowcharts
-  function convertAsciiToMermaid(text) {
-    if (text.includes('```mermaid')) return text;
-
-    if ((text.includes('+---') || text.includes('+=')) && text.includes('|')) {
-      const lines = text.split('\n');
-      let inAsciiBox = false;
-      let boxContentLines = [];
-      let newTextLines = [];
-
-      lines.forEach(line => {
-        if (line.includes('+---') || line.includes('+=') || line.includes('|')) {
-          inAsciiBox = true;
-          if (line.includes('|')) {
-            const cleanText = line.replace(/\|/g, '').replace(/\+---+/g, '').replace(/<-/g, '').trim();
-            if (cleanText) boxContentLines.push(cleanText);
-          }
-        } else {
-          if (inAsciiBox && boxContentLines.length > 0) {
-            let mermaidBlock = '\n\n```mermaid\ngraph TD\n';
-            boxContentLines.forEach((item, idx) => {
-              const safeItem = item.replace(/"/g, "'");
-              mermaidBlock += `    Node${idx}["${safeItem}"]\n`;
-              if (idx < boxContentLines.length - 1) {
-                mermaidBlock += `    Node${idx} --> Node${idx+1}\n`;
-              }
-              mermaidBlock += `    style Node${idx} fill:#171d28,stroke:#7d3cff,color:#fff,stroke-width:2px\n`;
-            });
-            mermaidBlock += '```\n\n';
-            newTextLines.push(mermaidBlock);
-            boxContentLines = [];
-            inAsciiBox = false;
-          }
-          newTextLines.push(line);
-        }
-      });
-
-      if (boxContentLines.length > 0) {
-        let mermaidBlock = '\n\n```mermaid\ngraph TD\n';
-        boxContentLines.forEach((item, idx) => {
-          const safeItem = item.replace(/"/g, "'");
-          mermaidBlock += `    Node${idx}["${safeItem}"]\n`;
-          if (idx < boxContentLines.length - 1) {
-            mermaidBlock += `    Node${idx} --> Node${idx+1}\n`;
-          }
-          mermaidBlock += `    style Node${idx} fill:#171d28,stroke:#7d3cff,color:#fff,stroke-width:2px\n`;
-        });
-        mermaidBlock += '```\n\n';
-        newTextLines.push(mermaidBlock);
-      }
-
-      return newTextLines.join('\n');
-    }
-
-    return text;
-  }
 </script>
 {% endblock %}
