@@ -25,13 +25,13 @@
 
   <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 1.5rem;">
 
-  <!-- Hidden Raw Content for Markdown Parsing -->
-  <div id="raw-note-content" style="display: none;">{{ note.content }}</div>
+  <!-- Hidden Raw Textarea Preserving Exact Multiline Newlines & Markdown Fences -->
+  <textarea id="raw-note-content" style="display: none;">{{ note.content }}</textarea>
 
   <!-- Note Formatted Reading Content -->
   <div id="rendered-note-content" class="note-markdown-body" style="word-break: break-word;">
     <!-- Fallback if JS disabled -->
-    <pre style="white-space: pre-wrap; font-family: inherit;">{{ note.content }}</pre>
+    <pre style="white-space: pre; font-family: 'Fira Code', monospace;">{{ note.content }}</pre>
   </div>
 
   {% if note.attachment_filename %}
@@ -59,7 +59,7 @@
     const rawContentEl = document.getElementById('raw-note-content');
     const renderedContentEl = document.getElementById('rendered-note-content');
     if (rawContentEl && renderedContentEl && typeof marked !== 'undefined') {
-      const rawText = rawContentEl.textContent;
+      const rawText = rawContentEl.value; // Textarea value preserves 100% exact newlines & formatting
       renderedContentEl.innerHTML = marked.parse(rawText);
       if (typeof Prism !== 'undefined') {
         Prism.highlightAllUnder(renderedContentEl);
