@@ -31,7 +31,12 @@
         </div>
 
         <div class="form-group">
-          <label for="content">Note Content (Supports text, code snippets, notes)</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+            <label for="content" style="margin-bottom: 0;">Note Content (Markdown &amp; Flowcharts supported)</label>
+            <button type="button" class="preset-chip" onclick="insertMermaidTemplate()" style="font-size: 0.75rem; padding: 0.18rem 0.55rem; color: var(--cyan); border-color: rgba(0, 200, 255, 0.3);">
+              <i class="fa-solid fa-diagram-project"></i> + Insert Flowchart Diagram
+            </button>
+          </div>
           <textarea id="content" name="content" class="form-control" placeholder="Type key algorithms, complexity analysis, code templates, or study notes..." required style="min-height: 180px;"></textarea>
         </div>
 
@@ -135,4 +140,14 @@
   </div>
 
 </div>
+
+<script>
+function insertMermaidTemplate() {
+  const contentEl = document.getElementById('content');
+  if (!contentEl) return;
+  const template = `\n\`\`\`mermaid\ngraph TD\n    A[Start / Function Call] --> B{Condition Check}\n    B -- True --> C[Execute Step 1]\n    B -- False --> D[Execute Step 2]\n    C --> E[Return Result]\n    D --> E\n\`\`\`\n`;
+  contentEl.value += template;
+  contentEl.focus();
+}
+</script>
 {% endblock %}

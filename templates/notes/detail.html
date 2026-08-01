@@ -9,7 +9,7 @@
   </a>
 </div>
 
-<div class="panel" style="max-width: 860px; margin: 0 auto; padding: 1.75rem 2rem; background: rgba(17, 21, 29, 0.85); border-color: rgba(125, 60, 255, 0.3);">
+<div class="panel" style="max-width: 880px; margin: 0 auto; padding: 1.75rem 2rem; background: rgba(17, 21, 29, 0.85); border-color: rgba(125, 60, 255, 0.3);">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
     <span style="font-size: 0.8rem; font-weight: 700; color: #c4b5fd; background: rgba(125, 60, 255, 0.15); padding: 0.25rem 0.65rem; border-radius: 6px; border: 1px solid rgba(125, 60, 255, 0.3);">
       <i class="fa-solid fa-folder-open"></i> {{ note.category }}
@@ -52,8 +52,10 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Marked.js Markdown Renderer -->
+<!-- Marked.js Markdown Renderer & Mermaid.js Flowchart Engine -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const rawContentEl = document.getElementById('raw-note-content');
@@ -64,6 +66,9 @@
       // Normalize literal '\n' escaped text to real newlines
       rawText = rawText.replace(/\\n/g, '\n');
 
+      // Auto-convert ASCII box diagrams (+---+ and | |) into Mermaid Flowcharts
+      rawText = convertAsciiToMermaid(rawText);
+
       if (typeof marked.use === 'function') {
         marked.use({ breaks: true, gfm: true });
       } else if (typeof marked.setOptions === 'function') {
@@ -72,26 +77,105 @@
 
       renderedContentEl.innerHTML = marked.parse(rawText);
 
-      // Auto-detect and format any loose ASCII box diagrams or inline code text
-      renderedContentEl.querySelectorAll('p').forEach(p => {
-        const text = p.innerText || p.textContent;
-        if (text.includes('+---') || text.includes('| ') || text.includes('executing +') || text.includes('TOP \n') || text.includes('Plate ')) {
-          p.style.fontFamily = "'Fira Code', 'Consolas', monospace";
-          p.style.whiteSpace = "pre-wrap";
-          p.style.background = "rgba(9, 13, 22, 0.95)";
-          p.style.padding = "0.85rem 1.1rem";
-          p.style.borderRadius = "8px";
-          p.style.border = "1px solid var(--border)";
-          p.style.color = "#a5f3fc";
-          p.style.fontSize = "0.84rem";
-          p.style.overflowX = "auto";
-        }
+      // Convert <pre><code class="language-mermaid"> into <div class="mermaid"> for Mermaid rendering
+      renderedContentEl.querySelectorAll('pre code.language-mermaid').forEach(codeBlock => {
+        const parentPre = codeBlock.parentElement;
+        const mermaidDiv = document.createElement('div');
+        mermaidDiv.className = 'mermaid';
+        mermaidDiv.style.textAlign = 'center';
+        mermaidDiv.style.margin = '1.5rem 0';
+        mermaidDiv.style.background = 'rgba(9, 13, 22, 0.95)';
+        mermaidDiv.style.padding = '1.25rem';
+        mermaidDiv.style.borderRadius = '14px';
+        mermaidDiv.style.border = '1px solid var(--border)';
+        mermaidDiv.textContent = codeBlock.textContent;
+        parentPre.replaceWith(mermaidDiv);
       });
+
+      // Render Mermaid Flowcharts
+      if (typeof mermaid !== 'undefined') {
+        try {
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+              darkMode: true,
+              background: '#090d16',
+              primaryColor: '#7d3cff',
+              primaryTextColor: '#ffffff',
+              primaryBorderColor: '#ff4fd8',
+              lineColor: '#00c8ff',
+              secondaryColor: '#10b981',
+              tertiaryColor: '#11151d'
+            }
+          });
+          mermaid.run({
+            querySelector: '.mermaid'
+          });
+        } catch (err) {
+          console.warn('Mermaid rendering warning:', err);
+        }
+      }
 
       if (typeof Prism !== 'undefined') {
         Prism.highlightAllUnder(renderedContentEl);
       }
     }
   });
+
+  // Convert ASCII box structures (+---+ and | |) into clean Mermaid Flowchart syntax
+  function convertAsciiToMermaid(text) {
+    if (text.includes('```mermaid')) return text;
+
+    if (text.includes('+---') && text.includes('|')) {
+      const lines = text.split('\n');
+      let inAsciiBox = false;
+      let boxContentLines = [];
+      let newTextLines = [];
+
+      lines.forEach(line => {
+        if (line.includes('+---') || line.includes('|')) {
+          inAsciiBox = true;
+          if (line.includes('|')) {
+            const cleanText = line.replace(/\|/g, '').replace(/\+---/g, '').replace(/<-/g, '').trim();
+            if (cleanText) boxContentLines.push(cleanText);
+          }
+        } else {
+          if (inAsciiBox && boxContentLines.length > 0) {
+            let mermaidBlock = '\n\n```mermaid\ngraph TD\n';
+            boxContentLines.forEach((item, idx) => {
+              mermaidBlock += `    Node${idx}["${item}"]\n`;
+              if (idx < boxContentLines.length - 1) {
+                mermaidBlock += `    Node${idx} --> Node${idx+1}\n`;
+              }
+              mermaidBlock += `    style Node${idx} fill:#171d28,stroke:#7d3cff,color:#fff,stroke-width:2px\n`;
+            });
+            mermaidBlock += '```\n\n';
+            newTextLines.push(mermaidBlock);
+            boxContentLines = [];
+            inAsciiBox = false;
+          }
+          newTextLines.push(line);
+        }
+      });
+
+      if (boxContentLines.length > 0) {
+        let mermaidBlock = '\n\n```mermaid\ngraph TD\n';
+        boxContentLines.forEach((item, idx) => {
+          mermaidBlock += `    Node${idx}["${item}"]\n`;
+          if (idx < boxContentLines.length - 1) {
+            mermaidBlock += `    Node${idx} --> Node${idx+1}\n`;
+          }
+          mermaidBlock += `    style Node${idx} fill:#171d28,stroke:#7d3cff,color:#fff,stroke-width:2px\n`;
+        });
+        mermaidBlock += '```\n\n';
+        newTextLines.push(mermaidBlock);
+      }
+
+      return newTextLines.join('\n');
+    }
+
+    return text;
+  }
 </script>
 {% endblock %}
