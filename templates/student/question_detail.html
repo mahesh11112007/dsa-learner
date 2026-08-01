@@ -44,7 +44,10 @@
           <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600; display: block; margin-bottom: 0.4rem;">
             <i class="fa-solid fa-image"></i> Problem Diagram Attachment (Click to zoom):
           </span>
-          <img src="{{ url_for('uploaded_question_file', filename=question.image_filename) }}" class="img-thumb" alt="Question Image" style="max-height: 280px; width: auto;">
+          <img src="{{ question.image_filename|img_url('question') }}" class="img-thumb" alt="Question Image" style="max-height: 280px; width: auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div style="display:none;align-items:center;gap:.5rem;color:#64748b;font-size:.85rem;padding:.6rem;border:1px dashed rgba(255,255,255,.06);border-radius:8px;">
+            <i class="fa-solid fa-image-slash"></i> Problem diagram unavailable or expired
+          </div>
         </div>
       {% endif %}
     </div>

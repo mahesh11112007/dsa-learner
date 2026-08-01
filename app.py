@@ -100,14 +100,50 @@ def allowed_file(filename):
 
 def save_file(file, target_folder):
     if file and file.filename != '' and allowed_file(file.filename):
-        os.makedirs(target_folder, exist_ok=True)
-        filename = secure_filename(file.filename)
-        # Add timestamp prefix to avoid filename collisions
-        unique_filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
-        filepath = os.path.join(target_folder, unique_filename)
-        file.save(filepath)
-        return unique_filename
+        try:
+            import base64
+            file_bytes = file.read()
+            if not file_bytes:
+                return None
+            
+            ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else 'png'
+            mime_type = 'image/jpeg' if ext in ['jpg', 'jpeg'] else f'image/{ext}'
+            b64_str = base64.b64encode(file_bytes).decode('utf-8')
+            data_uri = f"data:{mime_type};base64,{b64_str}"
+            
+            # Save disk copy if directory is writable
+            try:
+                os.makedirs(target_folder, exist_ok=True)
+                filename = secure_filename(file.filename)
+                unique_filename = f"{int(datetime.utcnow().timestamp())}_{filename}"
+                filepath = os.path.join(target_folder, unique_filename)
+                with open(filepath, 'wb') as f:
+                    f.write(file_bytes)
+            except Exception:
+                pass
+                
+            return data_uri
+        except Exception as e:
+            print(f"[Warning] Error processing file upload: {e}")
+            return None
     return None
+
+@app.template_filter('img_url')
+def img_url_filter(filename, folder_type='question'):
+    if not filename:
+        return ''
+    if filename.startswith('data:'):
+        return filename
+    try:
+        if folder_type == 'question':
+            return url_for('uploaded_question_file', filename=filename)
+        elif folder_type == 'submission':
+            return url_for('uploaded_submission_file', filename=filename)
+        elif folder_type == 'note':
+            return url_for('uploaded_note_file', filename=filename)
+    except Exception:
+        pass
+    return filename
 
 # Auto-cleanup: delete uploaded files older than 7 days
 def cleanup_old_uploads():

@@ -148,7 +148,7 @@
                 <span style="font-size:.8rem;color:var(--cyan);font-weight:600;display:block;margin-bottom:.5rem;">
                   <i class="fa-solid fa-image"></i> Problem Diagram (Click to zoom):
                 </span>
-                <img src="{{ url_for('uploaded_question_file', filename=q.image_filename) }}"
+                <img src="{{ q.image_filename|img_url('question') }}"
                      class="img-thumb" alt="{{ q.title }}"
                      style="max-height:180px;"
                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
