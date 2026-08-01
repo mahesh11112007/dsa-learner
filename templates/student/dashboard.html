@@ -3,19 +3,19 @@
 {% block title %}Student Portal | DSA QA{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 2.2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+<div class="page-header">
   <div>
     <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;">Welcome, {{ current_user.full_name }}! 👋</h1>
     <p style="color: var(--text-muted); font-size: 0.95rem;">Browse assigned questions, submit code solutions or handwritten diagrams, and view grades.</p>
   </div>
 
   <!-- Performance Score Pill -->
-  <div style="background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: var(--radius-lg); padding: 0.85rem 1.6rem; display: flex; align-items: center; gap: 1.25rem; box-shadow: var(--shadow-glow);">
-    <div style="font-size: 2rem; color: var(--accent-emerald);"><i class="fa-solid fa-award"></i></div>
+  <div style="background: var(--card); border: 1px solid var(--border-glow); border-radius: var(--r-lg); padding: 0.85rem 1.4rem; display: flex; align-items: center; gap: 1rem; box-shadow: var(--glow);">
+    <div style="font-size: 1.8rem; color: var(--emerald);"><i class="fa-solid fa-award"></i></div>
     <div>
-      <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Total Score Earned</span>
-      <span style="font-size: 1.6rem; font-weight: 800; color: var(--accent-emerald);">{{ total_earned }}</span>
-      <span style="font-size: 0.9rem; color: var(--text-muted);">/ {{ total_possible }} pts</span>
+      <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Total Score Earned</span>
+      <span style="font-size: 1.5rem; font-weight: 800; color: var(--emerald);">{{ total_earned }}</span>
+      <span style="font-size: 0.85rem; color: var(--muted);">/ {{ total_possible }} pts</span>
     </div>
   </div>
 </div>

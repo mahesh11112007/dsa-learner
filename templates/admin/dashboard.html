@@ -21,26 +21,34 @@
 <!-- Statistics Cards Grid -->
 <div class="stats-grid">
   <div class="stat-card">
-    <span class="label">Total Students</span>
-    <span class="value">{{ total_users }}</span>
+    <div class="stat-info">
+      <span class="label">Total Students</span>
+      <span class="value">{{ total_users }}</span>
+    </div>
     <div class="stat-icon" style="color: var(--accent-cyan);"><i class="fa-solid fa-users"></i></div>
   </div>
 
   <div class="stat-card">
-    <span class="label">Active Questions</span>
-    <span class="value">{{ total_questions }}</span>
+    <div class="stat-info">
+      <span class="label">Active Questions</span>
+      <span class="value">{{ total_questions }}</span>
+    </div>
     <div class="stat-icon" style="color: #a5b4fc;"><i class="fa-solid fa-book-open"></i></div>
   </div>
 
   <div class="stat-card">
-    <span class="label">Pending Review</span>
-    <span class="value" style="color: var(--accent-amber);">{{ pending_submissions }}</span>
+    <div class="stat-info">
+      <span class="label">Pending Review</span>
+      <span class="value" style="color: var(--accent-amber);">{{ pending_submissions }}</span>
+    </div>
     <div class="stat-icon" style="color: var(--accent-amber);"><i class="fa-solid fa-clock-rotate-left"></i></div>
   </div>
 
   <div class="stat-card">
-    <span class="label">Evaluated Answers</span>
-    <span class="value" style="color: var(--accent-emerald);">{{ graded_submissions }}</span>
+    <div class="stat-info">
+      <span class="label">Evaluated Answers</span>
+      <span class="value" style="color: var(--accent-emerald);">{{ graded_submissions }}</span>
+    </div>
     <div class="stat-icon" style="color: var(--accent-emerald);"><i class="fa-solid fa-circle-check"></i></div>
   </div>
 </div>
