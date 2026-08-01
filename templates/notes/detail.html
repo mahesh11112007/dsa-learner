@@ -3,51 +3,62 @@
 {% block title %}{{ note.title }} | Study Notes{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1.5rem;">
-  <a href="{{ url_for('notes_index') }}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
-    <i class="fa-solid fa-arrow-left"></i> Back to Study Notes
-  </a>
-</div>
+<div style="max-width: 900px; margin: 0 auto; padding-bottom: 3rem;">
 
-<div class="panel" style="max-width: 880px; margin: 0 auto; padding: 1.75rem 2rem; background: rgba(17, 21, 29, 0.85); border-color: rgba(125, 60, 255, 0.3);">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-    <span style="font-size: 0.8rem; font-weight: 700; color: #c4b5fd; background: rgba(125, 60, 255, 0.15); padding: 0.25rem 0.65rem; border-radius: 6px; border: 1px solid rgba(125, 60, 255, 0.3);">
-      <i class="fa-solid fa-folder-open"></i> {{ note.category }}
-    </span>
-    <span style="font-size: 0.8rem; color: var(--dim);">
-      <i class="fa-regular fa-calendar"></i> Published: {{ note.created_at.strftime('%b %d, %Y') }}
-    </span>
-  </div>
-
-  <h1 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 1.1rem; line-height: 1.35; letter-spacing: -0.3px;">
-    {{ note.title }}
-  </h1>
-
-  <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 1.5rem;">
-
-  <!-- Hidden Raw Textarea Preserving Exact Multiline Newlines & Markdown Fences -->
-  <textarea id="raw-note-content" style="display: none;">{{ note.content }}</textarea>
-
-  <!-- Note Formatted Reading Content -->
-  <div id="rendered-note-content" class="note-markdown-body" style="word-break: break-word;">
-    <!-- Fallback if JS disabled -->
-    <pre style="white-space: pre-wrap; font-family: 'Fira Code', monospace;">{{ note.content }}</pre>
-  </div>
-
-  {% if note.attachment_filename %}
-    <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
-      <h3 style="font-size: 1rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 0.75rem;">
-        <i class="fa-solid fa-paperclip"></i> Attached Study Material
-      </h3>
-      {% if note.attachment_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')) %}
-        <img src="{{ url_for('uploaded_note_file', filename=note.attachment_filename) }}" class="img-thumb" style="max-width: 100%; max-height: 450px; border-radius: 12px; border: 1px solid var(--border-subtle); cursor: zoom-in;" alt="Study Material">
-      {% else %}
-        <a href="{{ url_for('uploaded_note_file', filename=note.attachment_filename) }}" target="_blank" class="btn btn-secondary">
-          <i class="fa-solid fa-file-arrow-down"></i> Download Attached File ({{ note.attachment_filename }})
-        </a>
-      {% endif %}
+  <!-- Back Navigation & Meta Bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+    <a href="{{ url_for('notes_index') }}" class="btn btn-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left"></i> Back to Study Notes
+    </a>
+    
+    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+      <span class="badge" style="background: rgba(125, 60, 255, 0.18); color: #c4b5fd; border: 1px solid rgba(125, 60, 255, 0.35); font-size: 0.78rem; padding: 0.3rem 0.75rem; border-radius: 20px;">
+        <i class="fa-solid fa-folder-open"></i> {{ note.category }}
+      </span>
+      <span style="font-size: 0.8rem; color: var(--dim); background: rgba(255,255,255,0.04); padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid var(--border);">
+        <i class="fa-regular fa-calendar"></i> {{ note.created_at.strftime('%b %d, %Y') }}
+      </span>
     </div>
-  {% endif %}
+  </div>
+
+  <!-- Note Card Header & Main Container -->
+  <div class="panel" style="padding: 2.25rem; background: rgba(17, 21, 29, 0.85); border-color: rgba(125, 60, 255, 0.35); box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative; overflow: hidden;">
+    
+    <!-- Top Gradient Accent Line -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--grad);"></div>
+
+    <!-- Title -->
+    <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 1.25rem; line-height: 1.35; letter-spacing: -0.4px;">
+      {{ note.title }}
+    </h1>
+
+    <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 1.75rem;">
+
+    <!-- Hidden Raw Textarea Preserving Exact Multiline Newlines & Markdown Fences -->
+    <textarea id="raw-note-content" style="display: none;">{{ note.content }}</textarea>
+
+    <!-- Note Formatted Reading Content -->
+    <div id="rendered-note-content" class="note-markdown-body" style="word-break: break-word;">
+      <!-- Fallback if JS disabled -->
+      <pre style="white-space: pre-wrap; font-family: 'Fira Code', monospace;">{{ note.content }}</pre>
+    </div>
+
+    <!-- Attached Material -->
+    {% if note.attachment_filename %}
+      <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+        <h3 style="font-size: 1rem; font-weight: 700; color: var(--cyan); margin-bottom: 0.85rem;">
+          <i class="fa-solid fa-paperclip"></i> Attached Reference Diagram / File
+        </h3>
+        {% if note.attachment_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')) %}
+          <img src="{{ url_for('uploaded_note_file', filename=note.attachment_filename) }}" class="img-thumb" style="max-width: 100%; max-height: 480px; border-radius: 14px; border: 1px solid var(--border); cursor: zoom-in;" alt="Study Material">
+        {% else %}
+          <a href="{{ url_for('uploaded_note_file', filename=note.attachment_filename) }}" target="_blank" class="btn btn-secondary">
+            <i class="fa-solid fa-file-arrow-down"></i> Download Attachment ({{ note.attachment_filename }})
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}
 
@@ -63,44 +74,39 @@
     if (rawContentEl && renderedContentEl && typeof marked !== 'undefined') {
       let rawText = rawContentEl.value;
 
-      // Normalize literal '\n' escaped text to real newlines
+      // 1. Normalize literal '\n' escaped text to real newlines
       rawText = rawText.replace(/\\n/g, '\n');
 
-      // Strip accidental raw 'text ' or 'python ' prefixes at start of lines
-      rawText = rawText.replace(/^text\s+/gm, '').replace(/^python\s+/gm, '');
-
-      // Auto-convert ASCII box diagrams (+---+ and | |) into Mermaid Flowcharts
+      // 2. Pre-process ASCII diagrams to Mermaid Flowcharts if needed
       rawText = convertAsciiToMermaid(rawText);
 
+      // 3. Configure Marked.js options
       if (typeof marked.use === 'function') {
-        marked.use({ breaks: true, gfm: true });
+        marked.use({ breaks: false, gfm: true });
       } else if (typeof marked.setOptions === 'function') {
-        marked.setOptions({ breaks: true, gfm: true });
+        marked.setOptions({ breaks: false, gfm: true });
       }
 
+      // 4. Render Markdown
       renderedContentEl.innerHTML = marked.parse(rawText);
 
-      // Convert <pre><code class="language-mermaid"> into <div class="mermaid"> for Mermaid rendering
-      renderedContentEl.querySelectorAll('pre code.language-mermaid').forEach(codeBlock => {
+      // 5. Transform Mermaid code blocks into <div class="mermaid">
+      renderedContentEl.querySelectorAll('pre code.language-mermaid, pre code.language-flowchart').forEach(codeBlock => {
         const parentPre = codeBlock.parentElement;
         const mermaidDiv = document.createElement('div');
         mermaidDiv.className = 'mermaid';
-        mermaidDiv.style.textAlign = 'center';
-        mermaidDiv.style.margin = '1.5rem 0';
-        mermaidDiv.style.background = 'rgba(9, 13, 22, 0.95)';
-        mermaidDiv.style.padding = '1.25rem';
-        mermaidDiv.style.borderRadius = '14px';
-        mermaidDiv.style.border = '1px solid var(--border)';
-        mermaidDiv.textContent = codeBlock.textContent;
+        mermaidDiv.style.cssText = 'text-align:center;margin:1.75rem 0;background:rgba(9, 13, 22, 0.95);padding:1.4rem;border-radius:14px;border:1px solid rgba(125,60,255,0.3);box-shadow:0 10px 30px rgba(0,0,0,0.5);overflow-x:auto;';
+        mermaidDiv.textContent = codeBlock.textContent.trim();
         parentPre.replaceWith(mermaidDiv);
       });
 
-      // Render Mermaid Flowcharts
+      // 6. Initialize & Run Mermaid
       if (typeof mermaid !== 'undefined') {
         try {
           mermaid.initialize({
             startOnLoad: false,
             theme: 'dark',
+            securityLevel: 'loose',
             themeVariables: {
               darkMode: true,
               background: '#090d16',
@@ -112,32 +118,52 @@
               tertiaryColor: '#11151d'
             }
           });
-          mermaid.run({
-            querySelector: '.mermaid'
-          });
+          mermaid.run({ querySelector: '.mermaid' });
         } catch (err) {
-          console.warn('Mermaid rendering warning:', err);
+          console.warn('Mermaid execution warning:', err);
         }
       }
 
-      // Detect programming code blocks (Python, JS, etc.) and style with dark code block boxes
+      // 7. Format Code Blocks cleanly with Copy Header & Prism Syntax Highlighting
       renderedContentEl.querySelectorAll('pre').forEach(pre => {
-        const text = pre.textContent || pre.innerText;
+        if (pre.closest('.mermaid')) return;
         const code = pre.querySelector('code');
-        const isCode = (code && (code.className.includes('language-') || code.className.includes('python'))) ||
-                       text.includes('def ') ||
-                       text.includes('print(') ||
-                       text.includes('return ') ||
-                       text.includes('import ') ||
-                       text.includes('class ') ||
-                       text.includes('function ') ||
-                       text.includes('const ');
+        const text = pre.textContent || pre.innerText;
 
-        if (isCode) {
+        // Add code block container box if it's code
+        const isCodeBlock = (code && (code.className.includes('language-') || code.className.includes('python'))) ||
+                            text.includes('def ') || text.includes('print(') || text.includes('return ') ||
+                            text.includes('import ') || text.includes('class ') || text.includes('for ') || text.includes('while ');
+
+        if (isCodeBlock) {
           pre.classList.add('code-block-wrapper');
           if (code && !code.className.includes('language-')) {
             code.classList.add('language-python');
           }
+
+          // Add Top Bar with Copy Button
+          if (!pre.querySelector('.code-header-bar')) {
+            const lang = (code && code.className.match(/language-(\w+)/)) ? code.className.match(/language-(\w+)/)[1].toUpperCase() : 'CODE';
+            const headerBar = document.createElement('div');
+            headerBar.className = 'code-header-bar';
+            headerBar.innerHTML = `<span class="code-lang-tag"><i class="fa-solid fa-code"></i> ${lang}</span><button type="button" class="copy-code-btn" onclick="copyCodeBlock(this)"><i class="fa-regular fa-copy"></i> Copy</button>`;
+            pre.insertBefore(headerBar, pre.firstChild);
+          }
+        }
+      });
+
+      // 8. Style GitHub Alert Callouts (> [!NOTE], > [!TIP], > [!WARNING])
+      renderedContentEl.querySelectorAll('blockquote').forEach(bq => {
+        const text = bq.innerHTML;
+        if (text.includes('[!NOTE]') || text.includes('[!TIP]')) {
+          bq.className = 'callout-box callout-info';
+          bq.innerHTML = text.replace(/\[!(NOTE|TIP)\]/g, '<strong>💡 TIP / NOTE:</strong>');
+        } else if (text.includes('[!WARNING]') || text.includes('[!CAUTION]')) {
+          bq.className = 'callout-box callout-warning';
+          bq.innerHTML = text.replace(/\[!(WARNING|CAUTION)\]/g, '<strong>⚠️ WARNING:</strong>');
+        } else if (text.includes('[!IMPORTANT]')) {
+          bq.className = 'callout-box callout-important';
+          bq.innerHTML = text.replace(/\[!IMPORTANT\]/g, '<strong>📌 IMPORTANT:</strong>');
         }
       });
 
@@ -147,28 +173,40 @@
     }
   });
 
-  // Convert ASCII box structures (+---+ and | |) into clean Mermaid Flowchart syntax
+  // Copy code helper
+  function copyCodeBlock(btn) {
+    const pre = btn.closest('pre');
+    const code = pre.querySelector('code') || pre;
+    const text = code.innerText || code.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> Copied!';
+      setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy'; }, 2000);
+    });
+  }
+
+  // Convert loose ASCII box structures (+---+ and | |) into Mermaid Flowcharts
   function convertAsciiToMermaid(text) {
     if (text.includes('```mermaid')) return text;
 
-    if (text.includes('+---') && text.includes('|')) {
+    if ((text.includes('+---') || text.includes('+=')) && text.includes('|')) {
       const lines = text.split('\n');
       let inAsciiBox = false;
       let boxContentLines = [];
       let newTextLines = [];
 
       lines.forEach(line => {
-        if (line.includes('+---') || line.includes('|')) {
+        if (line.includes('+---') || line.includes('+=') || line.includes('|')) {
           inAsciiBox = true;
           if (line.includes('|')) {
-            const cleanText = line.replace(/\|/g, '').replace(/\+---/g, '').replace(/<-/g, '').trim();
+            const cleanText = line.replace(/\|/g, '').replace(/\+---+/g, '').replace(/<-/g, '').trim();
             if (cleanText) boxContentLines.push(cleanText);
           }
         } else {
           if (inAsciiBox && boxContentLines.length > 0) {
             let mermaidBlock = '\n\n```mermaid\ngraph TD\n';
             boxContentLines.forEach((item, idx) => {
-              mermaidBlock += `    Node${idx}["${item}"]\n`;
+              const safeItem = item.replace(/"/g, "'");
+              mermaidBlock += `    Node${idx}["${safeItem}"]\n`;
               if (idx < boxContentLines.length - 1) {
                 mermaidBlock += `    Node${idx} --> Node${idx+1}\n`;
               }
@@ -186,7 +224,8 @@
       if (boxContentLines.length > 0) {
         let mermaidBlock = '\n\n```mermaid\ngraph TD\n';
         boxContentLines.forEach((item, idx) => {
-          mermaidBlock += `    Node${idx}["${item}"]\n`;
+          const safeItem = item.replace(/"/g, "'");
+          mermaidBlock += `    Node${idx}["${safeItem}"]\n`;
           if (idx < boxContentLines.length - 1) {
             mermaidBlock += `    Node${idx} --> Node${idx+1}\n`;
           }
