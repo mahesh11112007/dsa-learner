@@ -66,6 +66,9 @@
       // Normalize literal '\n' escaped text to real newlines
       rawText = rawText.replace(/\\n/g, '\n');
 
+      // Strip accidental raw 'text ' or 'python ' prefixes at start of lines
+      rawText = rawText.replace(/^text\s+/gm, '').replace(/^python\s+/gm, '');
+
       // Auto-convert ASCII box diagrams (+---+ and | |) into Mermaid Flowcharts
       rawText = convertAsciiToMermaid(rawText);
 

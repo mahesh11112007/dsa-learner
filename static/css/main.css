@@ -472,21 +472,27 @@ NOTES MARKDOWN
   font-size: 0.88rem;
 }
 .note-markdown-body pre {
-  border-radius: var(--r-md);
-  margin: 0.9rem 0 !important;
-  font-size: 0.84rem !important;
-  padding: 0.85rem 1.1rem !important;
-  white-space: pre !important;
-  overflow-x: auto !important;
-  background: rgba(9, 13, 22, 0.95) !important;
-  border: 1px solid var(--border) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: 0.75rem 0 !important;
+  padding: 0.2rem 0 !important;
+  white-space: pre-wrap !important;
   font-family: 'Fira Code', 'Consolas', monospace !important;
+  font-size: 0.9rem !important;
+  line-height: 1.65 !important;
+  color: #a5f3fc !important;
 }
 .note-markdown-body pre code {
-  white-space: pre !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  white-space: pre-wrap !important;
   font-family: 'Fira Code', 'Consolas', monospace !important;
-  font-size: 0.85rem !important;
-  line-height: 1.5 !important;
+  font-size: 0.9rem !important;
+  line-height: 1.65 !important;
+  color: #a5f3fc !important;
 }
 .note-markdown-body code {
   font-family: 'Fira Code', 'Consolas', monospace;
