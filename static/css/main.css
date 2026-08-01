@@ -582,28 +582,27 @@ NOTES MARKDOWN
   font-family: 'Fira Code', 'Consolas', monospace !important;
   font-size: 0.88rem !important;
   line-height: 1.55 !important;
-/* Markdown Tables in Study Notes */
+/* Markdown Tables in Study Notes - Crisp Grid Borders */
 .note-markdown-body table {
   width: 100% !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
+  border-collapse: collapse !important;
   margin: 1.5rem 0 !important;
   border-radius: var(--r-md) !important;
   overflow: hidden !important;
-  border: 1px solid rgba(125, 60, 255, 0.3) !important;
-  background: rgba(13, 16, 23, 0.9) !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+  border: 1px solid rgba(125, 60, 255, 0.4) !important;
+  background: rgba(13, 16, 23, 0.95) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
 }
 
 .note-markdown-body th {
-  background: linear-gradient(135deg, rgba(125, 60, 255, 0.25), rgba(0, 200, 255, 0.15)) !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, rgba(125, 60, 255, 0.3), rgba(0, 200, 255, 0.2)) !important;
+  color: #ffffff !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
   font-size: 0.8rem !important;
   letter-spacing: 0.6px !important;
   padding: 0.85rem 1.1rem !important;
-  border-bottom: 1px solid rgba(125, 60, 255, 0.3) !important;
+  border: 1px solid rgba(125, 60, 255, 0.35) !important;
   text-align: left !important;
 }
 
@@ -611,12 +610,8 @@ NOTES MARKDOWN
   padding: 0.75rem 1.1rem !important;
   font-size: 0.88rem !important;
   color: #e2e8f0 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   vertical-align: middle !important;
-}
-
-.note-markdown-body tr:last-child td {
-  border-bottom: none !important;
 }
 
 .note-markdown-body tr:nth-child(even) td {
@@ -624,7 +619,7 @@ NOTES MARKDOWN
 }
 
 .note-markdown-body tr:hover td {
-  background: rgba(125, 60, 255, 0.08) !important;
+  background: rgba(125, 60, 255, 0.1) !important;
 }
 .note-markdown-body code {
   font-family: 'Fira Code', 'Consolas', monospace;
